@@ -36,6 +36,7 @@ CXXFLAGS = -iquote $(SRC_DIR) -iquote $(TESTS_DIR)/common -std=c++17 -Wfatal-err
 ##### Targets #####
 
 virt/all-tests: virt/cf-tests virt/ok-tests virt/integration
+	tools/check_cf_out.sh
 
 virt/cf-tests: $(TESTS_CF_TARGETS)
 
