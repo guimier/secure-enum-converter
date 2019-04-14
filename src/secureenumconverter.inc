@@ -16,8 +16,8 @@
     #error "SEC_ORPHAN_INT defined before including secureenumconverter.inc"
 #endif
 
-#ifdef SEC_ORPHAN_INT
-    #error "SEC_ORPHAN_INT defined before including secureenumconverter.inc"
+#ifdef SEC_ORPHAN_EXT
+    #error "SEC_ORPHAN_EXT defined before including secureenumconverter.inc"
 #endif
 
 #ifndef SEC_INTERNAL
