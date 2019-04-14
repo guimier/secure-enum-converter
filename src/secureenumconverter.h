@@ -13,8 +13,8 @@ struct SecureEnumConverter {
     static std::optional<Internal> toInternalOpt(External);
     static std::optional<External> toExternalOpt(Internal);
 
-    static const std::set<Internal>& internalValues();
-    static const std::set<External>& externalValues();
+    static const std::set<Internal>& convertibleInternalValues();
+    static const std::set<External>& convertibleExternalValues();
 
     static Internal toInternalOrThrow(External external) {
         const auto& internalOpt = toInternalOpt(external);

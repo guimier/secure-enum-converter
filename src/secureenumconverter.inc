@@ -84,7 +84,7 @@ auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::toExternalOpt(Internal int
 }
 
 template <>
-auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::internalValues() -> const std::set<Internal>&
+auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::convertibleInternalValues() -> const std::set<Internal>&
 {
     #define SEC_EQUIV(INT_VAL, EXT_VAL) INT_VAL,
     #define SEC_PROJ_I2E(INT_VAL, EXT_VAL) INT_VAL,
@@ -106,7 +106,7 @@ auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::internalValues() -> const 
 }
 
 template <>
-auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::externalValues() -> const std::set<External>&
+auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::convertibleExternalValues() -> const std::set<External>&
 {
     #define SEC_EQUIV(INT_VAL, EXT_VAL) EXT_VAL,
     #define SEC_PROJ_I2E(INT_VAL, EXT_VAL)

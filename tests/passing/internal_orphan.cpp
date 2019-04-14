@@ -32,11 +32,11 @@ START_TEST(InternalOrphan)
     COMPARE_EQ(SUT::toInternalOrThrow(B::B1), A::A1);
     COMPARE_EQ(SUT::toInternalOrThrow(B::B2), A::A2);
 
-    // internalValues
+    // convertibleInternalValues
     std::set<A> expectedInternalValues { A::A1, A::A2 };
-    COMPARE_EQ(SUT::internalValues(), expectedInternalValues);
+    COMPARE_EQ(SUT::convertibleInternalValues(), expectedInternalValues);
 
-    // internalValues
+    // convertibleInternalValues
     std::set<B> expectedExternalValues { B::B1, B::B2 };
-    COMPARE_EQ(SUT::externalValues(), expectedExternalValues);
+    COMPARE_EQ(SUT::convertibleExternalValues(), expectedExternalValues);
 END_TEST

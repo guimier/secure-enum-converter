@@ -30,11 +30,11 @@ START_TEST(Integration)
     THROWS(std::invalid_argument, SUT::toInternalOrThrow(B::B5));
     COMPARE_EQ(SUT::toInternalOrThrow(B::B3_old), A::A3);
 
-    // internalValues
+    // convertibleInternalValues
     std::set<A> expectedInternalValues { A::A1, A::A2, A::A3, A::A2_old };
-    COMPARE_EQ(SUT::internalValues(), expectedInternalValues);
+    COMPARE_EQ(SUT::convertibleInternalValues(), expectedInternalValues);
 
-    // internalValues
+    // convertibleInternalValues
     std::set<B> expectedExternalValues { B::B1, B::B2, B::B3, B::B3_old };
-    COMPARE_EQ(SUT::externalValues(), expectedExternalValues);
+    COMPARE_EQ(SUT::convertibleExternalValues(), expectedExternalValues);
 END_TEST
