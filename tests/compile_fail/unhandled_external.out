@@ -1,5 +1,5 @@
 In file included from tests/compile_fail/unhandled_external.cpp:12:
-src/secureenumconverter.inc: In static member function 'static std::optional<_Tp> SecureEnumConverter<InternalType, ExternalType>::toInternalOpt(SecureEnumConverter<InternalType, ExternalType>::External) [with InternalType = A; ExternalType = B; SecureEnumConverter<InternalType, ExternalType>::External = B]':
+src/secureenumconverter.inc: In static member function 'static std::optional<_Tp> SecureEnumConverter<InternalType, ExternalType, Tag>::toInternalOpt(SecureEnumConverter<InternalType, ExternalType, Tag>::External) [with InternalType = A; ExternalType = B; Tag = void; SecureEnumConverter<InternalType, ExternalType, Tag>::External = B]':
 src/secureenumconverter.inc:43:12: error: enumeration value 'B3' not handled in switch [-Werror=switch]
      switch (external) {
             ^

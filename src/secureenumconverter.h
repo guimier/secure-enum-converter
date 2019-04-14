@@ -12,6 +12,17 @@
  *
  * @tparam InternalType One on the two enumeration types.
  * @tparam ExternalType The other enumeration type.
+ * @tparam Tag This optional type can be defined to any custom type
+ *     when you need to have two different mappings between the same
+ *     types. There is no need for the type to be instanciable, only
+ *     to have an identity.
+ *     Exemple:
+ *     ````
+ *     enum class A { A1, A2 };
+ *     enum class B { B1, B2 };
+ *     using StandardConverter = SecureEnumConverter<A, B, struct StandardConverterTag>;
+ *     using AlternateConverter = SecureEnumConverter<A, B, struct AlternateConverterTag>;
+ *     ```
  *
  * The internal/external naming is used everywhere in the interface
  * to differenciate the direction. Finding a good naming being at
@@ -55,7 +66,7 @@
  *   - `SEC_ORPHAN_EXT` marks an internal value as having no matching external value
  *     SEC_ORPHAN_EXT(x_ext) ⇔ { to_int(x_ext) is undefined }
  */
-template <typename InternalType, typename ExternalType>
+template <typename InternalType, typename ExternalType, typename Tag = void>
 struct SecureEnumConverter {
     using Internal = InternalType;
     using External = ExternalType;
