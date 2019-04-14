@@ -1,3 +1,6 @@
+SHELL = bash
+export LANG = C
+
 SRC_DIR   = src
 OUT_DIR   = out
 OBJ_DIR   = $(OUT_DIR)/.o
