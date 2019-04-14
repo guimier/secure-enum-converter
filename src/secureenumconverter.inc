@@ -125,6 +125,5 @@ auto SEC_TYPE::convertibleExternalValues() -> const std::set<External>&
 
 #pragma GCC diagnostic pop
 
-#undef SEC_INTERNAL
-#undef SEC_EXTERNAL
+#undef SEC_TYPE
 #undef SEC_MAPPING

@@ -31,9 +31,9 @@
  * be most helpful where this class is needed. We apologize if this
  * is not the case for you.
  *
- * The implementation of the methods can either be inlined, or sit
- * in its own translation unit. The latter is probably better and is
- * the only one that is really tested.
+ * The implementation of the methods should sit in its own translation
+ * unit. The latter is probably better and is the only one that is
+ * really tested.
  *
  * To give this class the correct mapping to use, you need to define
  * two macros and include a file:

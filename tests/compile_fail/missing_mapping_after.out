@@ -1,4 +1,4 @@
-In file included from tests/compile_fail/missing_mapping_after.cpp:20:
+In file included from tests/compile_fail/missing_mapping_after.cpp:19:
 src/secureenumconverter.inc:28:6: error: #error "SEC_MAPPING not defined"
      #error "SEC_MAPPING not defined"
       ^~~~~
