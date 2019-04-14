@@ -1,0 +1,48 @@
+SRC_DIR   = src
+OUT_DIR   = out
+TESTS_DIR = tests
+
+TESTS_CF_DIR = $(TESTS_DIR)/compile_fail
+TESTS_OK_DIR = $(TESTS_DIR)/passing
+
+TESTS_CF_SRC = $(wildcard $(TESTS_CF_DIR)/*.cpp)
+TESTS_OK_SRC = $(wildcard $(TESTS_OK_DIR)/*.cpp)
+
+TESTS_CF_NAMES = $(TESTS_CF_SRC:$(TESTS_CF_DIR)/%.cpp=%)
+TESTS_OK_NAMES = $(TESTS_OK_SRC:$(TESTS_OK_DIR)/%.cpp=%)
+
+TESTS_OK_EXECS = $(TESTS_OK_EXECS:%=$(OUT_DIR)/rf-%)
+
+TESTS_CF_TARGETS = $(TESTS_CF_NAMES:%=virt/run-cf-%)
+TESTS_OK_TARGETS = $(TESTS_OK_NAMES:%=virt/run-ok-%)
+
+ALL_TESTS_TARGETS = $(TESTS_CF_TARGETS) $(TESTS_OK_TARGETS)
+
+CXXFLAGS = -iquote $(SRC_DIR) -iquote $(TESTS_DIR)/common -std=c++17 -Wall -Wextra -pedantic -Werror -Wfatal-errors
+
+##### Targets #####
+
+virt/run-tests: $(ALL_TESTS_TARGETS)
+
+$(OUT_DIR):
+	@ mkdir -p $@
+
+define TESTS_CF_GENERATOR
+virt/run-cf-$(1): $$(TESTS_CF_DIR)/$(1).cpp
+	! $$(CXX) $$(CXXFLAGS) $$< -o /dev/null 2>$$(TESTS_CF_DIR)/$(1).out
+endef
+$(foreach i,$(TESTS_CF_NAMES),$(eval $(call TESTS_CF_GENERATOR,$(i))))
+
+define TESTS_OK_GENERATOR
+$$(OUT_DIR)/$(1): $$(TESTS_OK_DIR)/$(1).cpp $$(OUT_DIR)
+	$$(CXX) $$(CXXFLAGS) $$< -o $$@
+
+virt/run-ok-$(1): $$(OUT_DIR)/$(1)
+	$$<
+endef
+$(foreach i,$(TESTS_OK_NAMES),$(eval $(call TESTS_OK_GENERATOR,$(i))))
+
+clean:
+	rm -rf $(OUT_DIR)
+
+.PHONY: clean virt/run-tests $(ALL_TESTS_TARGETS)

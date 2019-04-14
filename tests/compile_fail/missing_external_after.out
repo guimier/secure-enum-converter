@@ -1,0 +1,5 @@
+In file included from tests/compile_fail/missing_external_after.cpp:20:
+src/secureenumconverter.inc:8:6: error: #error "SEC_EXTERNAL not defined"
+     #error "SEC_EXTERNAL not defined"
+      ^~~~~
+compilation terminated due to -Wfatal-errors.
