@@ -3,6 +3,7 @@
 #define START_TEST(NAME)                                                        \
     int main() {                                                                \
         struct { int ok, nok; const char* name; } tst_status = { 0, 0, #NAME }; \
+                                                                                \
         auto tst_fails = [&](bool res) {                                        \
             if (res) {                                                          \
                 ++tst_status.ok;                                                \
@@ -11,14 +12,18 @@
             }                                                                   \
             return !res;                                                        \
         };                                                                      \
+                                                                                \
         {
 
 #define END_TEST                                                   \
         }                                                          \
+                                                                   \
         std::cout << "Test report for " << tst_status.name << ": " \
             << tst_status.ok << " passed; "                        \
             << tst_status.nok << " failed."                        \
             << std::endl;                                          \
+                                                                   \
+        return tst_status.nok != 0;                                \
     }
 
 #define COMPARE_OP(ACTUAL, EXPECTED, OP)                                                                   \
