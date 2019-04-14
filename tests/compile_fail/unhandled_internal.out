@@ -1,6 +1,6 @@
 In file included from tests/compile_fail/unhandled_internal.cpp:13:
 src/secureenumconverter.inc: In static member function 'static std::optional<_Up> SecureEnumConverter<InternalType, ExternalType>::toExternalOpt(SecureEnumConverter<InternalType, ExternalType>::Internal) [with InternalType = A; ExternalType = B; SecureEnumConverter<InternalType, ExternalType>::Internal = A]':
-src/secureenumconverter.inc:51:12: error: enumeration value 'A3' not handled in switch [-Werror=switch]
+src/secureenumconverter.inc:71:12: error: enumeration value 'A3' not handled in switch [-Werror=switch]
      switch (internal) {
             ^
 compilation terminated due to -Wfatal-errors.

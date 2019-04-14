@@ -1,5 +1,25 @@
 #include "secureenumconverter.h"
 
+#ifdef SEC_EQUIV
+    #error "SEC_EQUIV defined before including secureenumconverter.inc"
+#endif
+
+#ifdef SEC_PROJ_I2E
+    #error "SEC_PROJ_I2E defined before including secureenumconverter.inc"
+#endif
+
+#ifdef SEC_PROJ_E2I
+    #error "SEC_PROJ_E2I defined before including secureenumconverter.inc"
+#endif
+
+#ifdef SEC_ORPHAN_INT
+    #error "SEC_ORPHAN_INT defined before including secureenumconverter.inc"
+#endif
+
+#ifdef SEC_ORPHAN_INT
+    #error "SEC_ORPHAN_INT defined before including secureenumconverter.inc"
+#endif
+
 #ifndef SEC_INTERNAL
     #error "SEC_INTERNAL not defined"
 #endif
