@@ -1,22 +1,29 @@
 SRC_DIR   = src
 OUT_DIR   = out
+OBJ_DIR   = $(OUT_DIR)/.o
 TESTS_DIR = tests
 
 TESTS_CF_DIR = $(TESTS_DIR)/compile_fail
 TESTS_OK_DIR = $(TESTS_DIR)/passing
+TESTS_IN_DIR = $(TESTS_DIR)/integration
 
 TESTS_CF_SRC = $(wildcard $(TESTS_CF_DIR)/*.cpp)
 TESTS_OK_SRC = $(wildcard $(TESTS_OK_DIR)/*.cpp)
+TESTS_IN_SRC = $(wildcard $(TESTS_IN_DIR)/*.cpp)
+
+TESTS_IN_OBJ = $(TESTS_IN_SRC:$(TESTS_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
 TESTS_CF_NAMES = $(TESTS_CF_SRC:$(TESTS_CF_DIR)/%.cpp=%)
 TESTS_OK_NAMES = $(TESTS_OK_SRC:$(TESTS_OK_DIR)/%.cpp=%)
+TESTS_IN_NAMES = integration
 
 TESTS_OK_EXECS = $(TESTS_OK_EXECS:%=$(OUT_DIR)/rf-%)
 
 TESTS_CF_TARGETS = $(TESTS_CF_NAMES:%=virt/run-cf-%)
 TESTS_OK_TARGETS = $(TESTS_OK_NAMES:%=virt/run-ok-%)
+TESTS_IN_NAMES   = virt/run-integration
 
-ALL_TESTS_TARGETS = $(TESTS_CF_TARGETS) $(TESTS_OK_TARGETS)
+ALL_TESTS_TARGETS = $(TESTS_CF_TARGETS) $(TESTS_OK_TARGETS) $(TESTS_IN_TARGETS)
 
 CXXFLAGS = -iquote $(SRC_DIR) -iquote $(TESTS_DIR)/common -std=c++17 -Wall -Wextra -pedantic -Werror -Wfatal-errors
 
@@ -41,6 +48,16 @@ virt/run-ok-$(1): $$(OUT_DIR)/$(1)
 	$$<
 endef
 $(foreach i,$(TESTS_OK_NAMES),$(eval $(call TESTS_OK_GENERATOR,$(i))))
+
+$(OBJ_DIR)/%.o: $(TESTS_DIR)/%.cpp $(OBJ_DIR)
+	mkdir -p "$$(dirname "$@")"
+	$(CXX) $(CXXFLAGS) $< -c -o $@
+
+$(OUT_DIR)/integration: $(TESTS_IN_OBJ)
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+virt/run-integration: $(OUT_DIR)/integration
+	$<
 
 clean:
 	rm -rf $(OUT_DIR)

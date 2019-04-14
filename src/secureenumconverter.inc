@@ -15,27 +15,61 @@
 template <>
 auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::toInternalOpt(External external) -> std::optional<Internal>
 {
-    // TODO
+    #define SEC_EQUIV(INT_VAL, EXT_VAL) case EXT_VAL: return INT_VAL;
+
+    switch (external) {
+        SEC_MAPPING
+    }
+
+    // This is unreachable if SEC_MAPPING is properly defined (which should be
+    // the case if the user has no warning).
+    return std::nullopt;
+
+    #undef SEC_EQUIV
 }
 
 template <>
 auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::toExternalOpt(Internal internal) -> std::optional<External>
 {
-    // TODO
+    #define SEC_EQUIV(INT_VAL, EXT_VAL) case INT_VAL: return EXT_VAL;
+
+    switch (internal) {
+        SEC_MAPPING
+    }
+
+    // This is unreachable if SEC_MAPPING is properly defined (which should be
+    // the case if the user has no warning).
+    return std::nullopt;
+
+    #undef SEC_EQUIV
 }
-  static const std::vector<InternalEnum>& internalValues();
-  static const std::vector<ExternalEnum>& externalValues();
 
 template <>
-auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::internalValues() -> std::vector<Internal>
+auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::internalValues() -> const std::set<Internal>&
 {
-    // TODO
+    #define SEC_EQUIV(INT_VAL, EXT_VAL) INT_VAL,
+
+    static const std::set<Internal> values {
+        SEC_MAPPING
+    };
+
+    return values;
+
+    #undef SEC_EQUIV
 }
 
 template <>
-auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::externalValues() -> std::vector<External>
+auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::externalValues() -> const std::set<External>&
 {
-    // TODO
+    #define SEC_EQUIV(INT_VAL, EXT_VAL) EXT_VAL,
+
+    static const std::set<External> values {
+        SEC_MAPPING
+    };
+
+    return values;
+
+    #undef SEC_EQUIV
 }
 
 #undef SEC_INTERNAL
