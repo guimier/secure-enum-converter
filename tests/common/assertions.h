@@ -12,3 +12,17 @@
     } while (false)
 
 #define COMPARE_EQ(ACTUAL, EXPECTED) COMPARE_OP(ACTUAL, EXPECTED, ==)
+
+#define THROWS(TYPE, EXPR) \
+    do { \
+        bool thr_nok = false; \
+        try { \
+            EXPR; \
+            thr_nok = true; \
+        } catch (TYPE) {} \
+        if (thr_nok) { \
+            std::cerr << __FILE__ << ":" << __LINE__ << std::endl; \
+            std::cerr << "\tDIDN’T THROW: " << #EXPR << std::endl; \
+            return 1; \
+        } \
+    } while (false)

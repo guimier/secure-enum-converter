@@ -21,6 +21,8 @@ auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::toInternalOpt(External ext
     #define SEC_EQUIV(INT_VAL, EXT_VAL) case EXT_VAL: return INT_VAL;
     #define SEC_PROJ_I2E(INT_VAL, EXT_VAL)
     #define SEC_PROJ_E2I(INT_VAL, EXT_VAL) case EXT_VAL: return INT_VAL;
+    #define SEC_ORPHAN_INT(INT_VAL)
+    #define SEC_ORPHAN_EXT(EXT_VAL) case EXT_VAL: return std::nullopt;
 
     switch (external) {
         SEC_MAPPING
@@ -30,6 +32,8 @@ auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::toInternalOpt(External ext
     // the case if the user has no warning).
     return std::nullopt;
 
+    #undef SEC_ORPHAN_INT
+    #undef SEC_ORPHAN_EXT
     #undef SEC_PROJ_I2E
     #undef SEC_PROJ_E2I
     #undef SEC_EQUIV
@@ -41,6 +45,8 @@ auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::toExternalOpt(Internal int
     #define SEC_EQUIV(INT_VAL, EXT_VAL) case INT_VAL: return EXT_VAL;
     #define SEC_PROJ_I2E(INT_VAL, EXT_VAL) case INT_VAL: return EXT_VAL;
     #define SEC_PROJ_E2I(INT_VAL, EXT_VAL)
+    #define SEC_ORPHAN_INT(INT_VAL) case INT_VAL: return std::nullopt;
+    #define SEC_ORPHAN_EXT(EXT_VAL)
 
     switch (internal) {
         SEC_MAPPING
@@ -50,6 +56,8 @@ auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::toExternalOpt(Internal int
     // the case if the user has no warning).
     return std::nullopt;
 
+    #undef SEC_ORPHAN_INT
+    #undef SEC_ORPHAN_EXT
     #undef SEC_PROJ_I2E
     #undef SEC_PROJ_E2I
     #undef SEC_EQUIV
@@ -61,6 +69,8 @@ auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::internalValues() -> const 
     #define SEC_EQUIV(INT_VAL, EXT_VAL) INT_VAL,
     #define SEC_PROJ_I2E(INT_VAL, EXT_VAL) INT_VAL,
     #define SEC_PROJ_E2I(INT_VAL, EXT_VAL)
+    #define SEC_ORPHAN_INT(INT_VAL)
+    #define SEC_ORPHAN_EXT(EXT_VAL)
 
     static const std::set<Internal> values {
         SEC_MAPPING
@@ -68,6 +78,8 @@ auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::internalValues() -> const 
 
     return values;
 
+    #undef SEC_ORPHAN_INT
+    #undef SEC_ORPHAN_EXT
     #undef SEC_PROJ_I2E
     #undef SEC_PROJ_E2I
     #undef SEC_EQUIV
@@ -79,6 +91,8 @@ auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::externalValues() -> const 
     #define SEC_EQUIV(INT_VAL, EXT_VAL) EXT_VAL,
     #define SEC_PROJ_I2E(INT_VAL, EXT_VAL)
     #define SEC_PROJ_E2I(INT_VAL, EXT_VAL) EXT_VAL,
+    #define SEC_ORPHAN_INT(INT_VAL)
+    #define SEC_ORPHAN_EXT(EXT_VAL)
 
     static const std::set<External> values {
         SEC_MAPPING
@@ -86,6 +100,8 @@ auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::externalValues() -> const 
 
     return values;
 
+    #undef SEC_ORPHAN_INT
+    #undef SEC_ORPHAN_EXT
     #undef SEC_PROJ_I2E
     #undef SEC_PROJ_E2I
     #undef SEC_EQUIV
