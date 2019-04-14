@@ -1,4 +1,4 @@
-In file included from tests/compile_fail/defined_proj_e2i.cpp:18:
+In file included from tests/compile_fail/defined_proj_e2i.cpp:17:
 src/secureenumconverter.inc:12:6: error: #error "SEC_PROJ_E2I defined before including secureenumconverter.inc"
      #error "SEC_PROJ_E2I defined before including secureenumconverter.inc"
       ^~~~~

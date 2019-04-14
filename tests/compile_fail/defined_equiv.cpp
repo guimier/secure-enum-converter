@@ -11,8 +11,7 @@ int main () {}
 
 #define SEC_EQUIV
 
-#define SEC_INTERNAL A
-#define SEC_EXTERNAL B
+#define SEC_TYPE SUT
 #define SEC_MAPPING \
     SEC_EQUIV(A::A, B::B)
 #include "secureenumconverter.inc"

@@ -1,4 +1,4 @@
-In file included from tests/compile_fail/defined_proj_i2e.cpp:18:
+In file included from tests/compile_fail/defined_proj_i2e.cpp:17:
 src/secureenumconverter.inc:8:6: error: #error "SEC_PROJ_I2E defined before including secureenumconverter.inc"
      #error "SEC_PROJ_I2E defined before including secureenumconverter.inc"
       ^~~~~

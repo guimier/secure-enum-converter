@@ -9,6 +9,5 @@ using SUT = SecureEnumConverter<A, B>;
 
 int main () {}
 
-#define SEC_INTERNAL A
-#define SEC_EXTERNAL B
+#define SEC_TYPE SUT
 #include "secureenumconverter.inc"

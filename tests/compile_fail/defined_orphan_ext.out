@@ -1,4 +1,4 @@
-In file included from tests/compile_fail/defined_orphan_ext.cpp:18:
+In file included from tests/compile_fail/defined_orphan_ext.cpp:17:
 src/secureenumconverter.inc:20:6: error: #error "SEC_ORPHAN_EXT defined before including secureenumconverter.inc"
      #error "SEC_ORPHAN_EXT defined before including secureenumconverter.inc"
       ^~~~~

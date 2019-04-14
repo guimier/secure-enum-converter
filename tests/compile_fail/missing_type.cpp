@@ -9,7 +9,6 @@ using SUT = SecureEnumConverter<A, B>;
 
 int main () {}
 
-#define SEC_INTERNAL A
 #define SEC_MAPPING \
     SEC_EQUIV(A::A, B::B)
 #include "secureenumconverter.inc"

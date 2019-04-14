@@ -10,13 +10,11 @@ using SUT2 = SecureEnumConverter<B, A>;
 
 int main () {}
 
-#define SEC_INTERNAL A
-#define SEC_EXTERNAL B
+#define SEC_INTERNAL SUT1
 #define SEC_MAPPING \
     SEC_EQUIV(A::A, B::B)
 #include "secureenumconverter.inc"
 
-#define SEC_EXTERNAL A
 #define SEC_MAPPING \
-    SEC_EQUIV(B::B), A::A
+    SEC_EQUIV(B::B, A::A)
 #include "secureenumconverter.inc"

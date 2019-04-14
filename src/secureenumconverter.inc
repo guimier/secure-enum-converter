@@ -20,12 +20,8 @@
     #error "SEC_ORPHAN_EXT defined before including secureenumconverter.inc"
 #endif
 
-#ifndef SEC_INTERNAL
-    #error "SEC_INTERNAL not defined"
-#endif
-
-#ifndef SEC_EXTERNAL
-    #error "SEC_EXTERNAL not defined"
+#ifndef SEC_TYPE
+    #error "SEC_TYPE not defined"
 #endif
 
 #ifndef SEC_MAPPING
@@ -36,7 +32,7 @@
 #pragma GCC diagnostic error "-Wswitch"
 
 template <>
-auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::toInternalOpt(External external) -> std::optional<Internal>
+auto SEC_TYPE::toInternalOpt(External external) -> std::optional<Internal>
 {
     #define SEC_EQUIV(INT_VAL, EXT_VAL) case EXT_VAL: return INT_VAL;
     #define SEC_PROJ_I2E(INT_VAL, EXT_VAL)
@@ -60,7 +56,7 @@ auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::toInternalOpt(External ext
 }
 
 template <>
-auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::toExternalOpt(Internal internal) -> std::optional<External>
+auto SEC_TYPE::toExternalOpt(Internal internal) -> std::optional<External>
 {
     #define SEC_EQUIV(INT_VAL, EXT_VAL) case INT_VAL: return EXT_VAL;
     #define SEC_PROJ_I2E(INT_VAL, EXT_VAL) case INT_VAL: return EXT_VAL;
@@ -84,7 +80,7 @@ auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::toExternalOpt(Internal int
 }
 
 template <>
-auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::convertibleInternalValues() -> const std::set<Internal>&
+auto SEC_TYPE::convertibleInternalValues() -> const std::set<Internal>&
 {
     #define SEC_EQUIV(INT_VAL, EXT_VAL) INT_VAL,
     #define SEC_PROJ_I2E(INT_VAL, EXT_VAL) INT_VAL,
@@ -106,7 +102,7 @@ auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::convertibleInternalValues(
 }
 
 template <>
-auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::convertibleExternalValues() -> const std::set<External>&
+auto SEC_TYPE::convertibleExternalValues() -> const std::set<External>&
 {
     #define SEC_EQUIV(INT_VAL, EXT_VAL) EXT_VAL,
     #define SEC_PROJ_I2E(INT_VAL, EXT_VAL)

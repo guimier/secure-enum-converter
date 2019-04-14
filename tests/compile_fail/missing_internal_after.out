@@ -1,5 +1,0 @@
-In file included from tests/compile_fail/missing_internal_after.cpp:22:
-src/secureenumconverter.inc:24:6: error: #error "SEC_INTERNAL not defined"
-     #error "SEC_INTERNAL not defined"
-      ^~~~~
-compilation terminated due to -Wfatal-errors.

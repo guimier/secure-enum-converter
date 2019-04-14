@@ -1,0 +1,5 @@
+In file included from tests/compile_fail/missing_type.cpp:14:
+src/secureenumconverter.inc:24:6: error: #error "SEC_TYPE not defined"
+     #error "SEC_TYPE not defined"
+      ^~~~~
+compilation terminated due to -Wfatal-errors.
