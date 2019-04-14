@@ -12,7 +12,7 @@ using SUT = SecureEnumConverter<A, B>;
     SEC_EQUIV(A::A2, B::B2)
 #include "secureenumconverter.inc"
 
-int main () {
+START_TEST(Identical)
     // toExternalOpt
     COMPARE_EQ(SUT::toExternalOpt(A::A1), B::B1);
     COMPARE_EQ(SUT::toExternalOpt(A::A2), B::B2);
@@ -36,4 +36,4 @@ int main () {
     // internalValues
     std::set<B> expectedExternalValues { B::B1, B::B2 };
     COMPARE_EQ(SUT::externalValues(), expectedExternalValues);
-}
+END_TEST
