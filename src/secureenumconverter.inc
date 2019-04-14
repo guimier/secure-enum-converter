@@ -12,6 +12,9 @@
     #error "SEC_MAPPING not defined"
 #endif
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic error "-Wswitch"
+
 template <>
 auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::toInternalOpt(External external) -> std::optional<Internal>
 {
@@ -71,6 +74,8 @@ auto SecureEnumConverter<SEC_INTERNAL, SEC_EXTERNAL>::externalValues() -> const 
 
     #undef SEC_EQUIV
 }
+
+#pragma GCC diagnostic pop
 
 #undef SEC_INTERNAL
 #undef SEC_EXTERNAL

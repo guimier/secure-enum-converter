@@ -25,7 +25,7 @@ TESTS_IN_NAMES   = virt/run-integration
 
 ALL_TESTS_TARGETS = $(TESTS_CF_TARGETS) $(TESTS_OK_TARGETS) $(TESTS_IN_TARGETS)
 
-CXXFLAGS = -iquote $(SRC_DIR) -iquote $(TESTS_DIR)/common -std=c++17 -Wall -Wextra -pedantic -Werror -Wfatal-errors
+CXXFLAGS = -iquote $(SRC_DIR) -iquote $(TESTS_DIR)/common -std=c++17 -Wfatal-errors
 
 ##### Targets #####
 
