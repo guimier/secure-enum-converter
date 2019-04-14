@@ -1,4 +1,4 @@
-In file included from tests/compile_fail/missing_external_after.cpp:20:
+In file included from tests/compile_fail/missing_external_after.cpp:22:
 src/secureenumconverter.inc:28:6: error: #error "SEC_EXTERNAL not defined"
      #error "SEC_EXTERNAL not defined"
       ^~~~~

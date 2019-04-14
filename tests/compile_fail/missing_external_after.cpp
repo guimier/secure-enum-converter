@@ -12,9 +12,11 @@ int main () {}
 
 #define SEC_INTERNAL A
 #define SEC_EXTERNAL B
-#define SEC_MAPPING
+#define SEC_MAPPING \
+    SEC_EQUIV(A::A, B::B)
 #include "secureenumconverter.inc"
 
 #define SEC_INTERNAL B
-#define SEC_MAPPING
+#define SEC_MAPPING \
+    SEC_EQUIV(B::B, A::A)
 #include "secureenumconverter.inc"
