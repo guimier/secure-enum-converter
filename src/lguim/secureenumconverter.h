@@ -12,7 +12,7 @@ namespace lguim {
  * only compile when the behavior for all values is explicitely
  * written in code.
  *
- * @tparam InternalType One on the two enumeration types.
+ * @tparam InternalType One of the two enumeration types.
  * @tparam ExternalType The other enumeration type.
  * @tparam Tag This optional type can be defined to any custom type
  *     when you need to have two different mappings between the same
@@ -34,8 +34,7 @@ namespace lguim {
  * is not the case for you.
  *
  * The implementation of the methods should sit in its own translation
- * unit. The latter is probably better and is the only one that is
- * really tested.
+ * unit.
  *
  * To give this class the correct mapping to use, you need to define
  * two macros and include a file:
@@ -43,13 +42,13 @@ namespace lguim {
  * ```
  * enum class A { A1, A2 };
  * enum class B { B1, B2 };
- * using Converter = SecureEnumConverter<A, B>;
+ * using Converter = lguim::SecureEnumConverter<A, B>;
  *
  * #define SEC_TYPE Converter
  * #define SEC_MAPPING \
  *     SEC_EQUIV(A::A1, B::B1) \
  *     SEC_EQUIV(A::A2, B::B2)
- * #include "secureenumconverter.inc"
+ * #include "lguim/secureenumconverter.inc"
  * ```
  *
  * This inclusion must happen outside any namespace. It can happen
