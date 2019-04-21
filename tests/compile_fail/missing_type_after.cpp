@@ -10,7 +10,7 @@ using SUT2 = lguim::SecureEnumConverter<B, A>;
 
 int main () {}
 
-#define SEC_INTERNAL SUT1
+#define SEC_TYPE SUT1
 #define SEC_MAPPING \
     SEC_EQUIV(A::A, B::B)
 #include "lguim/secureenumconverter.inc"
