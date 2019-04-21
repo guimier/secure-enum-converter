@@ -1,16 +1,16 @@
 #include "assertions.h"
-#include "secureenumconverter.h"
+#include "lguim/secureenumconverter.h"
 
 enum class A { A1, A2, A3 };
 enum class B { B1, B2 };
-using SUT = SecureEnumConverter<A, B>;
+using SUT = lguim::SecureEnumConverter<A, B>;
 
 #define SEC_TYPE SUT
 #define SEC_MAPPING \
     SEC_EQUIV(A::A1, B::B1) \
     SEC_EQUIV(A::A2, B::B2) \
     SEC_ORPHAN_INT(A::A3)
-#include "secureenumconverter.inc"
+#include "lguim/secureenumconverter.inc"
 
 START_TEST(InternalOrphan)
     // toExternalOpt

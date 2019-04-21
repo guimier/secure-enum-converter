@@ -1,20 +1,20 @@
 #include <iostream>
 
-#include "secureenumconverter.h"
+#include "lguim/secureenumconverter.h"
 
 enum class A { A };
 enum class B { B };
 
-using SUT1 = SecureEnumConverter<A, B>;
-using SUT2 = SecureEnumConverter<B, A>;
+using SUT1 = lguim::SecureEnumConverter<A, B>;
+using SUT2 = lguim::SecureEnumConverter<B, A>;
 
 int main () {}
 
 #define SEC_INTERNAL SUT1
 #define SEC_MAPPING \
     SEC_EQUIV(A::A, B::B)
-#include "secureenumconverter.inc"
+#include "lguim/secureenumconverter.inc"
 
 #define SEC_MAPPING \
     SEC_EQUIV(B::B, A::A)
-#include "secureenumconverter.inc"
+#include "lguim/secureenumconverter.inc"

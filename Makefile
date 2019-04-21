@@ -11,7 +11,7 @@ TESTS_OK_DIR = $(TESTS_DIR)/passing
 TESTS_IN_DIR = $(TESTS_DIR)/integration
 TESTS_CO_DIR = $(TESTS_DIR)/common
 
-SRC_FILES = $(wildcard $(SRC_DIR)/*)
+SRC_FILES = $(wildcard $(SRC_DIR)/*/*)
 TESTS_CO_FILES = $(wildcard $(TESTS_CO_DIR)/*)
 ALL_DEPENDENCIES = $(SRC_FILES) $(TESTS_CO_FILES)
 

@@ -9,4 +9,4 @@
     SEC_EQUIV(A::A3, B::B3)        \
     SEC_ORPHAN_INT(A::A4)          \
     SEC_ORPHAN_EXT(B::B5)
-#include "secureenumconverter.inc"
+#include "lguim/secureenumconverter.inc"

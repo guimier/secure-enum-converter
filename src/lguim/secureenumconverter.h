@@ -1,9 +1,11 @@
-#ifndef SECURE_ENUM_CONVERTER
-#define SECURE_ENUM_CONVERTER
+#ifndef LGUIM_SECURE_ENUM_CONVERTER
+#define LGUIM_SECURE_ENUM_CONVERTER
 
 #include <optional>
 #include <set>
 #include <stdexcept>
+
+namespace lguim {
 
 /** `SecureEnumConverter` is a bi-directional enum converter, which
  * needs only one mapping in code to do both directions, and will
@@ -99,4 +101,6 @@ struct SecureEnumConverter {
 
 };
 
-#endif // SECURE_ENUM_CONVERTER
+} // namespace lguim
+
+#endif // LGUIM_SECURE_ENUM_CONVERTER
