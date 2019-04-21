@@ -31,6 +31,7 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic error "-Wswitch"
 
+#ifndef SEC_NO_SWITCH_EXTERNAL
 template <>
 auto SEC_TYPE::toInternalOpt(External external) -> std::optional<Internal>
 {
@@ -54,7 +55,30 @@ auto SEC_TYPE::toInternalOpt(External external) -> std::optional<Internal>
     #undef SEC_PROJ_E2I
     #undef SEC_EQUIV
 }
+#else // ifndef SEC_NO_SWITCH_EXTERNAL
+template <>
+auto SEC_TYPE::toInternalOpt(External external) -> std::optional<Internal>
+{
+    #define SEC_EQUIV(INT_VAL, EXT_VAL) if (external == EXT_VAL) { return INT_VAL; } else
+    #define SEC_PROJ_I2E(INT_VAL, EXT_VAL)
+    #define SEC_PROJ_E2I(INT_VAL, EXT_VAL) if (external == EXT_VAL) { return INT_VAL; } else
+    #define SEC_ORPHAN_INT(INT_VAL)
+    #define SEC_ORPHAN_EXT(EXT_VAL) if (external == EXT_VAL) { return nonstd::nullopt; } else
 
+    SEC_MAPPING {
+        // This is unreachable if SEC_MAPPING is properly defined.
+        return std::nullopt;
+    }
+
+    #undef SEC_ORPHAN_INT
+    #undef SEC_ORPHAN_EXT
+    #undef SEC_PROJ_I2E
+    #undef SEC_PROJ_E2I
+    #undef SEC_EQUIV
+}
+#endif // ifndef SEC_NO_SWITCH_EXTERNAL
+
+#ifndef SEC_NO_SWITCH_INTERNAL
 template <>
 auto SEC_TYPE::toExternalOpt(Internal internal) -> std::optional<External>
 {
@@ -78,6 +102,28 @@ auto SEC_TYPE::toExternalOpt(Internal internal) -> std::optional<External>
     #undef SEC_PROJ_E2I
     #undef SEC_EQUIV
 }
+#else // ifndef SEC_NO_SWITCH_INTERNAL
+template <>
+auto SEC_TYPE::toExternalOpt(Internal internal) -> std::optional<External>
+{
+    #define SEC_EQUIV(INT_VAL, EXT_VAL) if (internal == INT_VAL) { return EXT_VAL; } else
+    #define SEC_PROJ_I2E(INT_VAL, EXT_VAL) if (internal == INT_VAL) { return EXT_VAL; } else
+    #define SEC_PROJ_E2I(INT_VAL, EXT_VAL)
+    #define SEC_ORPHAN_INT(INT_VAL) if (internal == INT_VAL) { return nonstd::optional; } else
+    #define SEC_ORPHAN_EXT(EXT_VAL)
+
+    SEC_MAPPING {
+        // This is unreachable if SEC_MAPPING is properly defined.
+        return std::nullopt;
+    }
+
+    #undef SEC_ORPHAN_INT
+    #undef SEC_ORPHAN_EXT
+    #undef SEC_PROJ_I2E
+    #undef SEC_PROJ_E2I
+    #undef SEC_EQUIV
+}
+#endif // ifndef SEC_NO_SWITCH_INTERNAL
 
 template <>
 auto SEC_TYPE::convertibleInternalValues() -> const std::set<Internal>&
@@ -127,3 +173,5 @@ auto SEC_TYPE::convertibleExternalValues() -> const std::set<External>&
 
 #undef SEC_TYPE
 #undef SEC_MAPPING
+#undef SEC_NO_SWITCH_EXTERNAL
+#undef SEC_NO_SWITCH_INTERNAL
