@@ -17,6 +17,7 @@ START_TEST(NoSwitchExternal)
     // toExternalOpt
     COMPARE_EQ(SUT::toExternalOpt("B1"), B::B1);
     COMPARE_EQ(SUT::toExternalOpt("B2"), B::B2);
+    COMPARE_EQ(SUT::toExternalOpt("B3"), std::nullopt);
 
     // toInternalOpt
     COMPARE_EQ(SUT::toInternalOpt(B::B1), "B1");
@@ -25,6 +26,7 @@ START_TEST(NoSwitchExternal)
     // toExternalOrThrow
     COMPARE_EQ(SUT::toExternalOrThrow("B1"), B::B1);
     COMPARE_EQ(SUT::toExternalOrThrow("B2"), B::B2);
+    THROWS(std::invalid_argument, SUT::toExternalOrThrow("B3"));
 
     // toInternalOrThrow
     COMPARE_EQ(SUT::toInternalOrThrow(B::B1), "B1");

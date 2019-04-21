@@ -21,6 +21,7 @@ START_TEST(NoSwitchExternal)
     // toInternalOpt
     COMPARE_EQ(SUT::toInternalOpt("A1"), A::A1);
     COMPARE_EQ(SUT::toInternalOpt("A2"), A::A2);
+    COMPARE_EQ(SUT::toInternalOpt("A3"), std::nullopt);
 
     // toExternalOrThrow
     COMPARE_EQ(SUT::toExternalOrThrow(A::A1), "A1");
@@ -29,6 +30,7 @@ START_TEST(NoSwitchExternal)
     // toInternalOrThrow
     COMPARE_EQ(SUT::toInternalOrThrow("A1"), A::A1);
     COMPARE_EQ(SUT::toInternalOrThrow("A2"), A::A2);
+    THROWS(std::invalid_argument, SUT::toInternalOrThrow("A3"));
 
     // convertibleInternalValues
     std::set<A> expectedInternalValues { A::A1, A::A2 };
