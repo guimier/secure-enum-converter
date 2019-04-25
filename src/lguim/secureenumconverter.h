@@ -3,6 +3,7 @@
 
 #include <set>
 #include <stdexcept>
+#include <type_traits>
 
 #ifndef SEC_OPTIONAL_NS
 #define SEC_OPTIONAL_NS std
@@ -75,6 +76,7 @@ template <typename InternalType, typename ExternalType, typename Tag = void>
 struct SecureEnumConverter {
     using Internal = InternalType;
     using External = ExternalType;
+    using Converter = SecureEnumConverter<Internal, External, Tag>;
 
     static SEC_OPTIONAL_NS::optional<Internal> toInternalOpt(External);
     static SEC_OPTIONAL_NS::optional<External> toExternalOpt(Internal);
@@ -100,6 +102,73 @@ struct SecureEnumConverter {
         }
 
         return *externalOpt;
+    }
+
+};
+
+namespace priv {
+    template <bool toExternal, bool toInternal, typename Converter>
+    struct OneDirectionConverter;
+
+    template <typename Converter> // To external
+    struct OneDirectionConverter<true, false, Converter> {
+        using Input = typename Converter::Internal;
+        using Output = typename Converter::External;
+
+        static SEC_OPTIONAL_NS::optional<Output> convertOpt(Input input)
+        { return Converter::toExternalOpt(input); }
+
+        static Output convertOrThrow(Input input)
+        { return Converter::toExternalOrThrow(input); }
+
+        static const std::set<Output>& convertibleValues()
+        { return Converter::convertibleExternalValues(); }
+    };
+
+    template <typename Converter> // To internal
+    struct OneDirectionConverter<false, true, Converter> {
+        using Input = typename Converter::External;
+        using Output = typename Converter::Internal;
+
+        static SEC_OPTIONAL_NS::optional<Output> convertOpt(Input input)
+        { return Converter::toInternalOpt(input); }
+
+        static Output convertOrThrow(Input input)
+        { return Converter::toInternalOrThrow(input); }
+
+        static const std::set<Output>& convertibleValues()
+        { return Converter::convertibleInternalValues(); }
+    };
+};
+
+template <typename InternalTag, typename InternalType, typename ExternalTag, typename ExternalType, typename Tag = void>
+struct TaggedEnumConverter: public SecureEnumConverter<InternalType, ExternalType, Tag> {
+
+    template <typename DirectionTag, typename ODC = priv::OneDirectionConverter<
+        std::is_same<DirectionTag, ExternalTag>::value,
+        std::is_same<DirectionTag, InternalTag>::value,
+        SecureEnumConverter<InternalType, ExternalType, Tag>
+    > >
+    static SEC_OPTIONAL_NS::optional<typename ODC::Output> convertOpt(typename ODC::Input input) {
+        return ODC::convertOpt(input);
+    }
+
+    template <typename DirectionTag, typename ODC = priv::OneDirectionConverter<
+        std::is_same<DirectionTag, ExternalTag>::value,
+        std::is_same<DirectionTag, InternalTag>::value,
+        SecureEnumConverter<InternalType, ExternalType, Tag>
+    > >
+    static typename ODC::Output convertOrThrow(typename ODC::Input input) {
+        return ODC::convertOrThrow(input);
+    }
+
+    template <typename DirectionTag, typename ODC = priv::OneDirectionConverter<
+        std::is_same<DirectionTag, ExternalTag>::value,
+        std::is_same<DirectionTag, InternalTag>::value,
+        SecureEnumConverter<InternalType, ExternalType, Tag>
+    > >
+    static std::set<typename ODC::Output> convertibleValues() {
+        return ODC::convertibleValues();
     }
 
 };
