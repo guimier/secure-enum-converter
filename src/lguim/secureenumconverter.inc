@@ -33,13 +33,13 @@
 
 #ifndef SEC_NO_SWITCH_EXTERNAL
 template <>
-auto SEC_TYPE::toInternalOpt(External external) -> std::optional<Internal>
+auto SEC_TYPE::toInternalOpt(External external) -> SEC_OPTIONAL_NS::optional<Internal>
 {
     #define SEC_EQUIV(INT_VAL, EXT_VAL) case EXT_VAL: return INT_VAL;
     #define SEC_PROJ_I2E(INT_VAL, EXT_VAL)
     #define SEC_PROJ_E2I(INT_VAL, EXT_VAL) case EXT_VAL: return INT_VAL;
     #define SEC_ORPHAN_INT(INT_VAL)
-    #define SEC_ORPHAN_EXT(EXT_VAL) case EXT_VAL: return std::nullopt;
+    #define SEC_ORPHAN_EXT(EXT_VAL) case EXT_VAL: return SEC_OPTIONAL_NS::nullopt;
 
     switch (external) {
         SEC_MAPPING
@@ -47,7 +47,7 @@ auto SEC_TYPE::toInternalOpt(External external) -> std::optional<Internal>
 
     // This is unreachable if SEC_MAPPING is properly defined (which should be
     // the case if the user has no warning).
-    return std::nullopt;
+    return SEC_OPTIONAL_NS::nullopt;
 
     #undef SEC_ORPHAN_INT
     #undef SEC_ORPHAN_EXT
@@ -57,17 +57,17 @@ auto SEC_TYPE::toInternalOpt(External external) -> std::optional<Internal>
 }
 #else // ifndef SEC_NO_SWITCH_EXTERNAL
 template <>
-auto SEC_TYPE::toInternalOpt(External external) -> std::optional<Internal>
+auto SEC_TYPE::toInternalOpt(External external) -> SEC_OPTIONAL_NS::optional<Internal>
 {
     #define SEC_EQUIV(INT_VAL, EXT_VAL) if (external == EXT_VAL) { return INT_VAL; } else
     #define SEC_PROJ_I2E(INT_VAL, EXT_VAL)
     #define SEC_PROJ_E2I(INT_VAL, EXT_VAL) if (external == EXT_VAL) { return INT_VAL; } else
     #define SEC_ORPHAN_INT(INT_VAL)
-    #define SEC_ORPHAN_EXT(EXT_VAL) if (external == EXT_VAL) { return nonstd::nullopt; } else
+    #define SEC_ORPHAN_EXT(EXT_VAL) if (external == EXT_VAL) { return SEC_OPTIONAL_NS::nullopt; } else
 
     SEC_MAPPING {
         // This is unreachable if SEC_MAPPING is properly defined.
-        return std::nullopt;
+        return SEC_OPTIONAL_NS::nullopt;
     }
 
     #undef SEC_ORPHAN_INT
@@ -80,12 +80,12 @@ auto SEC_TYPE::toInternalOpt(External external) -> std::optional<Internal>
 
 #ifndef SEC_NO_SWITCH_INTERNAL
 template <>
-auto SEC_TYPE::toExternalOpt(Internal internal) -> std::optional<External>
+auto SEC_TYPE::toExternalOpt(Internal internal) -> SEC_OPTIONAL_NS::optional<External>
 {
     #define SEC_EQUIV(INT_VAL, EXT_VAL) case INT_VAL: return EXT_VAL;
     #define SEC_PROJ_I2E(INT_VAL, EXT_VAL) case INT_VAL: return EXT_VAL;
     #define SEC_PROJ_E2I(INT_VAL, EXT_VAL)
-    #define SEC_ORPHAN_INT(INT_VAL) case INT_VAL: return std::nullopt;
+    #define SEC_ORPHAN_INT(INT_VAL) case INT_VAL: return SEC_OPTIONAL_NS::nullopt;
     #define SEC_ORPHAN_EXT(EXT_VAL)
 
     switch (internal) {
@@ -94,7 +94,7 @@ auto SEC_TYPE::toExternalOpt(Internal internal) -> std::optional<External>
 
     // This is unreachable if SEC_MAPPING is properly defined (which should be
     // the case if the user has no warning).
-    return std::nullopt;
+    return SEC_OPTIONAL_NS::nullopt;
 
     #undef SEC_ORPHAN_INT
     #undef SEC_ORPHAN_EXT
@@ -104,17 +104,17 @@ auto SEC_TYPE::toExternalOpt(Internal internal) -> std::optional<External>
 }
 #else // ifndef SEC_NO_SWITCH_INTERNAL
 template <>
-auto SEC_TYPE::toExternalOpt(Internal internal) -> std::optional<External>
+auto SEC_TYPE::toExternalOpt(Internal internal) -> SEC_OPTIONAL_NS::optional<External>
 {
     #define SEC_EQUIV(INT_VAL, EXT_VAL) if (internal == INT_VAL) { return EXT_VAL; } else
     #define SEC_PROJ_I2E(INT_VAL, EXT_VAL) if (internal == INT_VAL) { return EXT_VAL; } else
     #define SEC_PROJ_E2I(INT_VAL, EXT_VAL)
-    #define SEC_ORPHAN_INT(INT_VAL) if (internal == INT_VAL) { return nonstd::optional; } else
+    #define SEC_ORPHAN_INT(INT_VAL) if (internal == INT_VAL) { return SEC_OPTIONAL_NS::optional; } else
     #define SEC_ORPHAN_EXT(EXT_VAL)
 
     SEC_MAPPING {
         // This is unreachable if SEC_MAPPING is properly defined.
-        return std::nullopt;
+        return SEC_OPTIONAL_NS::nullopt;
     }
 
     #undef SEC_ORPHAN_INT

@@ -1,9 +1,13 @@
 #ifndef LGUIM_SECURE_ENUM_CONVERTER
 #define LGUIM_SECURE_ENUM_CONVERTER
 
-#include <optional>
 #include <set>
 #include <stdexcept>
+
+#ifndef SEC_OPTIONAL_NS
+#define SEC_OPTIONAL_NS std
+#include <optional>
+#endif
 
 namespace lguim {
 
@@ -72,8 +76,8 @@ struct SecureEnumConverter {
     using Internal = InternalType;
     using External = ExternalType;
 
-    static std::optional<Internal> toInternalOpt(External);
-    static std::optional<External> toExternalOpt(Internal);
+    static SEC_OPTIONAL_NS::optional<Internal> toInternalOpt(External);
+    static SEC_OPTIONAL_NS::optional<External> toExternalOpt(Internal);
 
     static const std::set<Internal>& convertibleInternalValues();
     static const std::set<External>& convertibleExternalValues();

@@ -1,19 +1,19 @@
 #include "assertions.h"
 #include "sut.h"
 
-START_TEST(Integration)
+START_TEST(Integration11)
     // toExternalOpt
     COMPARE_EQ(SUT::toExternalOpt(A::A1), B::B1);
     COMPARE_EQ(SUT::toExternalOpt(A::A2), B::B2);
     COMPARE_EQ(SUT::toExternalOpt(A::A3), B::B3);
-    COMPARE_EQ(SUT::toExternalOpt(A::A4), std::nullopt);
+    COMPARE_EQ(SUT::toExternalOpt(A::A4), nonstd::nullopt);
     COMPARE_EQ(SUT::toExternalOpt(A::A2_old), B::B2);
 
     // toInternalOpt
     COMPARE_EQ(SUT::toInternalOpt(B::B1), A::A1);
     COMPARE_EQ(SUT::toInternalOpt(B::B2), A::A2);
     COMPARE_EQ(SUT::toInternalOpt(B::B3), A::A3);
-    COMPARE_EQ(SUT::toInternalOpt(B::B5), std::nullopt);
+    COMPARE_EQ(SUT::toInternalOpt(B::B5), nonstd::nullopt);
     COMPARE_EQ(SUT::toInternalOpt(B::B3_old), A::A3);
 
     // toExternalOrThrow
