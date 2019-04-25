@@ -58,7 +58,7 @@ virt/all-tests-deps: $(OUT_DIR) $(ALL_DEPENDENCIES)
 
 define TESTS_CF_GENERATOR
 virt/run-cf-$(1): $$(TESTS_CF_DIR)/$(1).cpp
-	! $$(CXX) $$(CXX17FLAGS) $$< -o /dev/null 2>$$(TESTS_CF_DIR)/$(1).out
+	@tools/run_cf.sh "$(1)" "$$(TESTS_CF_DIR)/$(1).out" $$(CXX) $$(CXX17FLAGS) $$< -o /dev/null
 endef
 $(foreach i,$(TESTS_CF_NAMES),$(eval $(call TESTS_CF_GENERATOR,$(i))))
 
