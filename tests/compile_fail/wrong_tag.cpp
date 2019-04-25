@@ -12,5 +12,5 @@ using SUT = lguim::TaggedEnumConverter<TA, A, TB, B>;
 #include "lguim/secureenumconverter.inc"
 
 int main() {
-    const auto& out = SUT::convertOpt<TC>(A::A1)
+    const auto& out = SUT::convertOpt<TC>(A::A1);
 }

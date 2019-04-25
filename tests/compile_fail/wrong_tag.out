@@ -1,5 +1,5 @@
 tests/compile_fail/wrong_tag.cpp: In function 'int main()':
 tests/compile_fail/wrong_tag.cpp:15:48: error: no matching function for call to 'lguim::TaggedEnumConverter<TA, A, TB, B>::convertOpt<TC>(A)'
-     const auto& out = SUT::convertOpt<TC>(A::A1)
+     const auto& out = SUT::convertOpt<TC>(A::A1);
                                                 ^
 compilation terminated due to -Wfatal-errors.
