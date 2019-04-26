@@ -161,6 +161,13 @@ namespace priv {
  * ```
  *
  * Except you now call `convertOpt<TA>` instead of `toInternalOpt`.
+ *
+ * This class implements a interface that may still be too generic for your
+ * need, because it allows using a tag type that is not one of the enumeration
+ * types. This may be useful when you have two families of enumerations to
+ * convert and want the tag to describe the family rather than the specific type.
+ *
+ * If you don’t need a different type, you may use `TypedEnumConverter` instead.
  */
 template <typename InternalTag, typename InternalType, typename ExternalTag, typename ExternalType, typename Tag = void>
 struct TaggedEnumConverter: public SecureEnumConverter<InternalType, ExternalType, Tag> {
@@ -190,6 +197,28 @@ struct TaggedEnumConverter: public SecureEnumConverter<InternalType, ExternalTyp
     }
 
 };
+
+/** `TaggedEnumConverter` is a subclass of `SecureEnumConverter`, providing a
+ * more natural interface to the `SecureEnumConverter` API than the primary
+ * one centered around the internal/external terminology.
+ *
+ * It may be used in a very similar way:
+ * ```
+ * enum class A { A1, A2 };
+ * enum class B { B1, B2 };
+ * using Converter = lguim::TypedEnumConverter<A, B>;
+ *
+ * #define SEC_TYPE Converter
+ * #define SEC_MAPPING \
+ *     SEC_EQUIV(A::A1, B::B1) \
+ *     SEC_EQUIV(A::A2, B::B2)
+ * #include "lguim/secureenumconverter.inc"
+ * ```
+ *
+ * Except you now call `convertOpt<A>` instead of `toInternalOpt`.
+ */
+template <typename InternalType, typename ExternalType, typename Tag = void>
+using TypedEnumConverter = TaggedEnumConverter<InternalType, InternalType, ExternalType, ExternalType, Tag>;
 
 } // namespace lguim
 
