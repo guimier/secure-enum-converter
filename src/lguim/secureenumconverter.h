@@ -37,16 +37,19 @@ namespace lguim {
  * be most helpful where this class is needed. We apologize if this
  * is not the case for you.
  *
- * The implementation of the methods should sit in its own translation
- * unit.
- *
  * To give this class the correct mapping to use, you need to define
- * two macros and include a file:
+ * two macros and include a file. This must be placed in a single
+ * translation unit. Example:
  *
  * ```
+ * // abconverter.h
+ * #include "lguim/secureenumconverter.h"
  * enum class A { A1, A2 };
  * enum class B { B1, B2 };
  * using Converter = lguim::SecureEnumConverter<A, B>;
+ *
+ * // abconverter.cpp
+ * #include "abconverter.h"
  *
  * #define SEC_TYPE Converter
  * #define SEC_MAPPING \
