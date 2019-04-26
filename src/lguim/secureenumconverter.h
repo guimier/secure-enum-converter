@@ -35,8 +35,10 @@ namespace lguim {
  * to differenciate the direction. Finding a good naming being at
  * the same time generic, easy to use and easy to read is hard, and
  * we believe the internal/external distinction is the one that will
- * be most helpful where this class is needed. We apologize if this
- * is not the case for you.
+ * be most helpful where this class is needed. However, this class
+ * supports subclassing (including giving the subclass as `SEC_TYPE`).
+ * You can use the `TaggedEnumConverter` if it is a better fit for your
+ * usage, or define your own subclass.
  *
  * The implementation of the methods should sit in its own translation
  * unit.
@@ -141,6 +143,25 @@ namespace priv {
     };
 };
 
+/** `TaggedEnumConverter` is a subclass of `SecureEnumConverter`, providing a
+ * more natural interface to the `SecureEnumConverter` API than the primary
+ * one centered around the internal/external terminology.
+ *
+ * It may be used in a very similar way:
+ * ```
+ * enum class A { A1, A2 }; struct TA;
+ * enum class B { B1, B2 }; struct TB;
+ * using Converter = lguim::TaggedEnumConverter<TA, A, TB, B>;
+ *
+ * #define SEC_TYPE Converter
+ * #define SEC_MAPPING \
+ *     SEC_EQUIV(A::A1, B::B1) \
+ *     SEC_EQUIV(A::A2, B::B2)
+ * #include "lguim/secureenumconverter.inc"
+ * ```
+ *
+ * Except you now call `convertOpt<TA>` instead of `toInternalOpt`.
+ */
 template <typename InternalTag, typename InternalType, typename ExternalTag, typename ExternalType, typename Tag = void>
 struct TaggedEnumConverter: public SecureEnumConverter<InternalType, ExternalType, Tag> {
 
