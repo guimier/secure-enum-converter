@@ -3,6 +3,7 @@
 
 #include <set>
 #include <stdexcept>
+#include <type_traits>
 
 #ifndef SEC_OPTIONAL_NS
 #define SEC_OPTIONAL_NS std
@@ -34,8 +35,10 @@ namespace lguim {
  * to differenciate the direction. Finding a good naming being at
  * the same time generic, easy to use and easy to read is hard, and
  * we believe the internal/external distinction is the one that will
- * be most helpful where this class is needed. We apologize if this
- * is not the case for you.
+ * be most helpful where this class is needed. However, this class
+ * supports subclassing (including giving the subclass as `SEC_TYPE`).
+ * You can use the `TaggedEnumConverter` if it is a better fit for your
+ * usage, or define your own subclass.
  *
  * To give this class the correct mapping to use, you need to define
  * two macros and include a file. This must be placed in a single
@@ -78,6 +81,7 @@ template <typename InternalType, typename ExternalType, typename Tag = void>
 struct SecureEnumConverter {
     using Internal = InternalType;
     using External = ExternalType;
+    using Converter = SecureEnumConverter<Internal, External, Tag>;
 
     static SEC_OPTIONAL_NS::optional<Internal> toInternalOpt(External);
     static SEC_OPTIONAL_NS::optional<External> toExternalOpt(Internal);
@@ -106,6 +110,118 @@ struct SecureEnumConverter {
     }
 
 };
+
+namespace priv {
+    template <bool toExternal, typename Converter>
+    struct OneDirectionConverter;
+
+    template <typename Converter> // To external
+    struct OneDirectionConverter<true, Converter> {
+        using Input = typename Converter::Internal;
+        using Output = typename Converter::External;
+
+        static SEC_OPTIONAL_NS::optional<Output> convertOpt(Input input)
+        { return Converter::toExternalOpt(input); }
+
+        static Output convertOrThrow(Input input)
+        { return Converter::toExternalOrThrow(input); }
+
+        static const std::set<Output>& convertibleValues()
+        { return Converter::convertibleExternalValues(); }
+    };
+
+    template <typename Converter> // To internal
+    struct OneDirectionConverter<false, Converter> {
+        using Input = typename Converter::External;
+        using Output = typename Converter::Internal;
+
+        static SEC_OPTIONAL_NS::optional<Output> convertOpt(Input input)
+        { return Converter::toInternalOpt(input); }
+
+        static Output convertOrThrow(Input input)
+        { return Converter::toInternalOrThrow(input); }
+
+        static const std::set<Output>& convertibleValues()
+        { return Converter::convertibleInternalValues(); }
+    };
+};
+
+/** `TaggedEnumConverter` is a subclass of `SecureEnumConverter`, providing a
+ * more natural interface to the `SecureEnumConverter` API than the primary
+ * one centered around the internal/external terminology.
+ *
+ * It may be used in a very similar way:
+ * ```
+ * enum class A { A1, A2 }; struct TA;
+ * enum class B { B1, B2 }; struct TB;
+ * using Converter = lguim::TaggedEnumConverter<TA, A, TB, B>;
+ *
+ * #define SEC_TYPE Converter
+ * #define SEC_MAPPING \
+ *     SEC_EQUIV(A::A1, B::B1) \
+ *     SEC_EQUIV(A::A2, B::B2)
+ * #include "lguim/secureenumconverter.inc"
+ * ```
+ *
+ * Except you now call `convertOpt<TA>` instead of `toInternalOpt`.
+ *
+ * This class implements a interface that may still be too generic for your
+ * need, because it allows using a tag type that is not one of the enumeration
+ * types. This may be useful when you have two families of enumerations to
+ * convert and want the tag to describe the family rather than the specific type.
+ *
+ * If you don’t need a different type, you may use `TypedEnumConverter` instead.
+ */
+template <typename InternalTag, typename InternalType, typename ExternalTag, typename ExternalType, typename Tag = void>
+struct TaggedEnumConverter: public SecureEnumConverter<InternalType, ExternalType, Tag> {
+
+    template <typename DirectionTag, typename ODC = priv::OneDirectionConverter<
+        std::is_same<DirectionTag, ExternalTag>::value,
+        SecureEnumConverter<InternalType, ExternalType, Tag>
+    > >
+    static SEC_OPTIONAL_NS::optional<typename ODC::Output> convertOpt(typename ODC::Input input) {
+        return ODC::convertOpt(input);
+    }
+
+    template <typename DirectionTag, typename ODC = priv::OneDirectionConverter<
+        std::is_same<DirectionTag, ExternalTag>::value,
+        SecureEnumConverter<InternalType, ExternalType, Tag>
+    > >
+    static typename ODC::Output convertOrThrow(typename ODC::Input input) {
+        return ODC::convertOrThrow(input);
+    }
+
+    template <typename DirectionTag, typename ODC = priv::OneDirectionConverter<
+        std::is_same<DirectionTag, ExternalTag>::value,
+        SecureEnumConverter<InternalType, ExternalType, Tag>
+    > >
+    static std::set<typename ODC::Output> convertibleValues() {
+        return ODC::convertibleValues();
+    }
+
+};
+
+/** `TaggedEnumConverter` is a subclass of `SecureEnumConverter`, providing a
+ * more natural interface to the `SecureEnumConverter` API than the primary
+ * one centered around the internal/external terminology.
+ *
+ * It may be used in a very similar way:
+ * ```
+ * enum class A { A1, A2 };
+ * enum class B { B1, B2 };
+ * using Converter = lguim::TypedEnumConverter<A, B>;
+ *
+ * #define SEC_TYPE Converter
+ * #define SEC_MAPPING \
+ *     SEC_EQUIV(A::A1, B::B1) \
+ *     SEC_EQUIV(A::A2, B::B2)
+ * #include "lguim/secureenumconverter.inc"
+ * ```
+ *
+ * Except you now call `convertOpt<A>` instead of `toInternalOpt`.
+ */
+template <typename InternalType, typename ExternalType, typename Tag = void>
+using TypedEnumConverter = TaggedEnumConverter<InternalType, InternalType, ExternalType, ExternalType, Tag>;
 
 } // namespace lguim
 

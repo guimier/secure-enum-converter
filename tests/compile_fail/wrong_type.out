@@ -1,0 +1,5 @@
+tests/compile_fail/wrong_type.cpp: In function 'int main()':
+tests/compile_fail/wrong_type.cpp:15:47: error: no matching function for call to 'lguim::TaggedEnumConverter<A, A, B, B, void>::convertOpt<C>(A)'
+     const auto& out = SUT::convertOpt<C>(A::A1);
+                                               ^
+compilation terminated due to -Wfatal-errors.

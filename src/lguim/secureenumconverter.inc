@@ -33,7 +33,7 @@
 
 #ifndef SEC_NO_SWITCH_EXTERNAL
 template <>
-auto SEC_TYPE::toInternalOpt(External external) -> SEC_OPTIONAL_NS::optional<Internal>
+auto SEC_TYPE::Converter::toInternalOpt(External external) -> SEC_OPTIONAL_NS::optional<Internal>
 {
     #define SEC_EQUIV(INT_VAL, EXT_VAL) case EXT_VAL: return INT_VAL;
     #define SEC_PROJ_I2E(INT_VAL, EXT_VAL)
@@ -57,7 +57,7 @@ auto SEC_TYPE::toInternalOpt(External external) -> SEC_OPTIONAL_NS::optional<Int
 }
 #else // ifndef SEC_NO_SWITCH_EXTERNAL
 template <>
-auto SEC_TYPE::toInternalOpt(External external) -> SEC_OPTIONAL_NS::optional<Internal>
+auto SEC_TYPE::Converter::toInternalOpt(External external) -> SEC_OPTIONAL_NS::optional<Internal>
 {
     #define SEC_EQUIV(INT_VAL, EXT_VAL) if (external == EXT_VAL) { return INT_VAL; } else
     #define SEC_PROJ_I2E(INT_VAL, EXT_VAL)
@@ -80,7 +80,7 @@ auto SEC_TYPE::toInternalOpt(External external) -> SEC_OPTIONAL_NS::optional<Int
 
 #ifndef SEC_NO_SWITCH_INTERNAL
 template <>
-auto SEC_TYPE::toExternalOpt(Internal internal) -> SEC_OPTIONAL_NS::optional<External>
+auto SEC_TYPE::Converter::toExternalOpt(Internal internal) -> SEC_OPTIONAL_NS::optional<External>
 {
     #define SEC_EQUIV(INT_VAL, EXT_VAL) case INT_VAL: return EXT_VAL;
     #define SEC_PROJ_I2E(INT_VAL, EXT_VAL) case INT_VAL: return EXT_VAL;
@@ -104,7 +104,7 @@ auto SEC_TYPE::toExternalOpt(Internal internal) -> SEC_OPTIONAL_NS::optional<Ext
 }
 #else // ifndef SEC_NO_SWITCH_INTERNAL
 template <>
-auto SEC_TYPE::toExternalOpt(Internal internal) -> SEC_OPTIONAL_NS::optional<External>
+auto SEC_TYPE::Converter::toExternalOpt(Internal internal) -> SEC_OPTIONAL_NS::optional<External>
 {
     #define SEC_EQUIV(INT_VAL, EXT_VAL) if (internal == INT_VAL) { return EXT_VAL; } else
     #define SEC_PROJ_I2E(INT_VAL, EXT_VAL) if (internal == INT_VAL) { return EXT_VAL; } else
@@ -126,7 +126,7 @@ auto SEC_TYPE::toExternalOpt(Internal internal) -> SEC_OPTIONAL_NS::optional<Ext
 #endif // ifndef SEC_NO_SWITCH_INTERNAL
 
 template <>
-auto SEC_TYPE::convertibleInternalValues() -> const std::set<Internal>&
+auto SEC_TYPE::Converter::convertibleInternalValues() -> const std::set<Internal>&
 {
     #define SEC_EQUIV(INT_VAL, EXT_VAL) INT_VAL,
     #define SEC_PROJ_I2E(INT_VAL, EXT_VAL) INT_VAL,
@@ -148,7 +148,7 @@ auto SEC_TYPE::convertibleInternalValues() -> const std::set<Internal>&
 }
 
 template <>
-auto SEC_TYPE::convertibleExternalValues() -> const std::set<External>&
+auto SEC_TYPE::Converter::convertibleExternalValues() -> const std::set<External>&
 {
     #define SEC_EQUIV(INT_VAL, EXT_VAL) EXT_VAL,
     #define SEC_PROJ_I2E(INT_VAL, EXT_VAL)
