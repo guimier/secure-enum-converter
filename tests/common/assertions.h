@@ -59,7 +59,7 @@
         try {                                                      \
             EXPR;                                                  \
             thr_ok = false;                                        \
-        } catch (TYPE) {}                                          \
+        } catch (TYPE&) {}                                         \
         if (tst_fails(thr_ok)) {                                   \
             tst_status.errors                                      \
                 << "\tDIDN’T THROW:"                               \

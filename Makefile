@@ -40,6 +40,10 @@ CXXFLAGS = -iquote $(SRC_DIR) -iquote $(TESTS_DIR)/common -g -Wfatal-errors
 CXX11FLAGS = $(CXXFLAGS) -std=c++11
 CXX17FLAGS = $(CXXFLAGS) -std=c++17
 
+CXXFLAGS_IN = -pedantic -Wall -Wextra -Werror
+CXX11FLAGS_IN = $(CXX11FLAGS) $(CXXFLAGS_IN)
+CXX17FLAGS_IN = $(CXX17FLAGS) $(CXXFLAGS_IN)
+
 ##### Targets #####
 
 virt/all-tests: virt/cf-tests virt/ok-tests virt/in-tests
@@ -73,20 +77,20 @@ $(foreach i,$(TESTS_OK_NAMES),$(eval $(call TESTS_OK_GENERATOR,$(i))))
 
 $(OBJ_DIR)/cpp11-%.o: $(TESTS_11_DIR)/%.cpp virt/all-tests-deps
 	mkdir -p "$$(dirname "$@")"
-	$(CXX) $(CXX11FLAGS) $< -c -o $@
+	$(CXX) $(CXX11FLAGS_IN) $< -c -o $@
 
 $(OUT_DIR)/in-cpp11: $(TESTS_11_OBJ)
-	$(CXX) $(CXX11FLAGS) $^ -o $@
+	$(CXX) $(CXX11FLAGS_IN) $^ -o $@
 
 virt/integration/cpp11: $(OUT_DIR)/in-cpp11
 	$<
 
 $(OBJ_DIR)/cpp17-%.o: $(TESTS_17_DIR)/%.cpp virt/all-tests-deps
 	mkdir -p "$$(dirname "$@")"
-	$(CXX) $(CXX17FLAGS) $< -c -o $@
+	$(CXX) $(CXX17FLAGS_IN) $< -c -o $@
 
 $(OUT_DIR)/in-cpp17: $(TESTS_17_OBJ)
-	$(CXX) $(CXX17FLAGS) $^ -o $@
+	$(CXX) $(CXX17FLAGS_IN) $^ -o $@
 
 virt/integration/cpp17: $(OUT_DIR)/in-cpp17
 	$<

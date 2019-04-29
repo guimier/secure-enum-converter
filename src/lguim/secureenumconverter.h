@@ -144,7 +144,7 @@ namespace priv {
         static const std::set<Output>& convertibleValues()
         { return Converter::convertibleInternalValues(); }
     };
-};
+}
 
 /** `TaggedEnumConverter` is a subclass of `SecureEnumConverter`, providing a
  * more natural interface to the `SecureEnumConverter` API than the primary
