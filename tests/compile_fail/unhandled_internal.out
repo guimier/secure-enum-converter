@@ -1,6 +1,6 @@
 In file included from tests/compile_fail/unhandled_internal.cpp:12:
 src/lguim/secureenumconverter.inc: In static member function 'static std::optional<_Up> lguim::SecureEnumConverter<InternalType, ExternalType, Tag>::toExternalOpt(lguim::SecureEnumConverter<InternalType, ExternalType, Tag>::Internal) [with InternalType = A; ExternalType = B; Tag = void; lguim::SecureEnumConverter<InternalType, ExternalType, Tag>::Internal = A]':
-src/lguim/secureenumconverter.inc:91:12: error: enumeration value 'A3' not handled in switch [-Werror=switch]
+src/lguim/secureenumconverter.inc:93:12: error: enumeration value 'A3' not handled in switch [-Werror=switch]
      switch (internal) {
             ^
 compilation terminated due to -Wfatal-errors.

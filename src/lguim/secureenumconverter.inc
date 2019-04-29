@@ -31,6 +31,8 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic error "-Wswitch"
 
+namespace lguim {
+
 #ifndef SEC_NO_SWITCH_EXTERNAL
 template <>
 auto SEC_TYPE::Converter::toInternalOpt(External external) -> SEC_OPTIONAL_NS::optional<Internal>
@@ -168,6 +170,8 @@ auto SEC_TYPE::Converter::convertibleExternalValues() -> const std::set<External
     #undef SEC_PROJ_E2I
     #undef SEC_EQUIV
 }
+
+} // namespace lguim
 
 #pragma GCC diagnostic pop
 

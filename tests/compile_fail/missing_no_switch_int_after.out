@@ -1,6 +1,6 @@
 In file included from tests/compile_fail/missing_no_switch_int_after.cpp:23:
 src/lguim/secureenumconverter.inc: In static member function 'static std::optional<_Up> lguim::SecureEnumConverter<InternalType, ExternalType, Tag>::toExternalOpt(lguim::SecureEnumConverter<InternalType, ExternalType, Tag>::Internal) [with InternalType = std::__cxx11::basic_string<char>; ExternalType = B; Tag = void; lguim::SecureEnumConverter<InternalType, ExternalType, Tag>::Internal = std::__cxx11::basic_string<char>]':
-src/lguim/secureenumconverter.inc:91:21: error: switch quantity not an integer
+src/lguim/secureenumconverter.inc:93:21: error: switch quantity not an integer
      switch (internal) {
                      ^
 compilation terminated due to -Wfatal-errors.
