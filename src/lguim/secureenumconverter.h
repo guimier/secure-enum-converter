@@ -4,6 +4,7 @@
 #include <set>
 #include <stdexcept>
 #include <type_traits>
+#include <sstream>
 
 #ifndef SEC_OPTIONAL_NS
 #define SEC_OPTIONAL_NS std
@@ -93,7 +94,9 @@ struct SecureEnumConverter {
         const auto& internalOpt = toInternalOpt(external);
 
         if (!internalOpt) {
-          throw std::invalid_argument("Invalid external enum value");
+            std::ostringstream oss;
+            oss << "Invalid external enum value (" << converter() << ")";
+            throw std::invalid_argument(oss.str());
         }
 
         return *internalOpt;
@@ -103,12 +106,16 @@ struct SecureEnumConverter {
         const auto& externalOpt = toExternalOpt(internal);
 
         if (!externalOpt) {
-          throw std::invalid_argument("Invalid internal enum value");
+            std::ostringstream oss;
+            oss << "Invalid external enum value (" << converter() << ")";
+            throw std::invalid_argument(oss.str());
         }
 
         return *externalOpt;
     }
 
+private:
+    static const char* converter() { return __PRETTY_FUNCTION__; }
 };
 
 namespace priv {
