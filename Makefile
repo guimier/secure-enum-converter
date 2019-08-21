@@ -46,6 +46,11 @@ CXX17FLAGS_IN = $(CXX17FLAGS) $(CXXFLAGS_IN)
 
 ##### Targets #####
 
+virt/all: virt/all-tests virt/lint
+
+virt/lint:
+	cpplint --extensions=h,inc $(SRC_FILES)
+
 virt/all-tests: virt/cf-tests virt/ok-tests virt/in-tests
 	tools/check_cf_out.sh
 
@@ -98,4 +103,4 @@ virt/integration/cpp17: $(OUT_DIR)/in-cpp17
 clean:
 	rm -rf $(OUT_DIR)
 
-.PHONY: clean virt/all-tests virt/cf-tests virt/ok-tests virt/in-tests virt/all-tests-deps $(ALL_TESTS_TARGETS)
+.PHONY: clean virt/all virt/lint virt/all-tests virt/cf-tests virt/ok-tests virt/in-tests virt/all-tests-deps $(ALL_TESTS_TARGETS)

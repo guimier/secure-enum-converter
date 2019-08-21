@@ -1,4 +1,7 @@
-#include "secureenumconverter.h"
+// Copyright 2019 Lucien Guimier <lucien.guimier@laposte.net>
+// Released according to the MIT terms. See attached LICENSE file.
+
+#include "lguim/secureenumconverter.h"
 
 #ifdef SEC_EQUIV
     #error "SEC_EQUIV defined before including secureenumconverter.inc"
@@ -35,13 +38,16 @@ namespace lguim {
 
 #ifndef SEC_NO_SWITCH_EXTERNAL
 template <>
-auto SEC_TYPE::Converter::toInternalOpt(External external) -> SEC_OPTIONAL_NS::optional<Internal>
-{
-    #define SEC_EQUIV(INT_VAL, EXT_VAL) case EXT_VAL: return INT_VAL;
+auto SEC_TYPE::Converter::toInternalOpt(External external)
+    -> SEC_OPTIONAL_NS::optional<Internal> {
+    #define SEC_EQUIV(INT_VAL, EXT_VAL) \
+        case EXT_VAL: return INT_VAL;
     #define SEC_PROJ_I2E(INT_VAL, EXT_VAL)
-    #define SEC_PROJ_E2I(INT_VAL, EXT_VAL) case EXT_VAL: return INT_VAL;
+    #define SEC_PROJ_E2I(INT_VAL, EXT_VAL) \
+        case EXT_VAL: return INT_VAL;
     #define SEC_ORPHAN_INT(INT_VAL)
-    #define SEC_ORPHAN_EXT(EXT_VAL) case EXT_VAL: return SEC_OPTIONAL_NS::nullopt;
+    #define SEC_ORPHAN_EXT(EXT_VAL) \
+        case EXT_VAL: return SEC_OPTIONAL_NS::nullopt;
 
     switch (external) {
         SEC_MAPPING
@@ -57,15 +63,18 @@ auto SEC_TYPE::Converter::toInternalOpt(External external) -> SEC_OPTIONAL_NS::o
     #undef SEC_PROJ_E2I
     #undef SEC_EQUIV
 }
-#else // ifndef SEC_NO_SWITCH_EXTERNAL
+#else  // ifndef SEC_NO_SWITCH_EXTERNAL
 template <>
-auto SEC_TYPE::Converter::toInternalOpt(External external) -> SEC_OPTIONAL_NS::optional<Internal>
-{
-    #define SEC_EQUIV(INT_VAL, EXT_VAL) if (external == EXT_VAL) { return INT_VAL; } else
+auto SEC_TYPE::Converter::toInternalOpt(External external)
+    -> SEC_OPTIONAL_NS::optional<Internal> {
+    #define SEC_EQUIV(INT_VAL, EXT_VAL) \
+        if (external == EXT_VAL) { return INT_VAL; } else
     #define SEC_PROJ_I2E(INT_VAL, EXT_VAL)
-    #define SEC_PROJ_E2I(INT_VAL, EXT_VAL) if (external == EXT_VAL) { return INT_VAL; } else
+    #define SEC_PROJ_E2I(INT_VAL, EXT_VAL) \
+        if (external == EXT_VAL) { return INT_VAL; } else
     #define SEC_ORPHAN_INT(INT_VAL)
-    #define SEC_ORPHAN_EXT(EXT_VAL) if (external == EXT_VAL) { return SEC_OPTIONAL_NS::nullopt; } else
+    #define SEC_ORPHAN_EXT(EXT_VAL) \
+        if (external == EXT_VAL) { return SEC_OPTIONAL_NS::nullopt; } else
 
     SEC_MAPPING {
         // This is unreachable if SEC_MAPPING is properly defined.
@@ -78,16 +87,19 @@ auto SEC_TYPE::Converter::toInternalOpt(External external) -> SEC_OPTIONAL_NS::o
     #undef SEC_PROJ_E2I
     #undef SEC_EQUIV
 }
-#endif // ifndef SEC_NO_SWITCH_EXTERNAL
+#endif  //  ifndef SEC_NO_SWITCH_EXTERNAL
 
 #ifndef SEC_NO_SWITCH_INTERNAL
 template <>
-auto SEC_TYPE::Converter::toExternalOpt(Internal internal) -> SEC_OPTIONAL_NS::optional<External>
-{
-    #define SEC_EQUIV(INT_VAL, EXT_VAL) case INT_VAL: return EXT_VAL;
-    #define SEC_PROJ_I2E(INT_VAL, EXT_VAL) case INT_VAL: return EXT_VAL;
+auto SEC_TYPE::Converter::toExternalOpt(Internal internal)
+    -> SEC_OPTIONAL_NS::optional<External> {
+    #define SEC_EQUIV(INT_VAL, EXT_VAL) \
+        case INT_VAL: return EXT_VAL;
+    #define SEC_PROJ_I2E(INT_VAL, EXT_VAL) \
+        case INT_VAL: return EXT_VAL;
     #define SEC_PROJ_E2I(INT_VAL, EXT_VAL)
-    #define SEC_ORPHAN_INT(INT_VAL) case INT_VAL: return SEC_OPTIONAL_NS::nullopt;
+    #define SEC_ORPHAN_INT(INT_VAL) \
+        case INT_VAL: return SEC_OPTIONAL_NS::nullopt;
     #define SEC_ORPHAN_EXT(EXT_VAL)
 
     switch (internal) {
@@ -104,14 +116,17 @@ auto SEC_TYPE::Converter::toExternalOpt(Internal internal) -> SEC_OPTIONAL_NS::o
     #undef SEC_PROJ_E2I
     #undef SEC_EQUIV
 }
-#else // ifndef SEC_NO_SWITCH_INTERNAL
+#else  // ifndef SEC_NO_SWITCH_INTERNAL
 template <>
-auto SEC_TYPE::Converter::toExternalOpt(Internal internal) -> SEC_OPTIONAL_NS::optional<External>
-{
-    #define SEC_EQUIV(INT_VAL, EXT_VAL) if (internal == INT_VAL) { return EXT_VAL; } else
-    #define SEC_PROJ_I2E(INT_VAL, EXT_VAL) if (internal == INT_VAL) { return EXT_VAL; } else
+auto SEC_TYPE::Converter::toExternalOpt(Internal internal)
+    -> SEC_OPTIONAL_NS::optional<External> {
+    #define SEC_EQUIV(INT_VAL, EXT_VAL) \
+        if (internal == INT_VAL) { return EXT_VAL; } else
+    #define SEC_PROJ_I2E(INT_VAL, EXT_VAL) \
+        if (internal == INT_VAL) { return EXT_VAL; } else
     #define SEC_PROJ_E2I(INT_VAL, EXT_VAL)
-    #define SEC_ORPHAN_INT(INT_VAL) if (internal == INT_VAL) { return SEC_OPTIONAL_NS::optional; } else
+    #define SEC_ORPHAN_INT(INT_VAL) \
+        if (internal == INT_VAL) { return SEC_OPTIONAL_NS::optional; } else
     #define SEC_ORPHAN_EXT(EXT_VAL)
 
     SEC_MAPPING {
@@ -125,13 +140,15 @@ auto SEC_TYPE::Converter::toExternalOpt(Internal internal) -> SEC_OPTIONAL_NS::o
     #undef SEC_PROJ_E2I
     #undef SEC_EQUIV
 }
-#endif // ifndef SEC_NO_SWITCH_INTERNAL
+#endif  // ifndef SEC_NO_SWITCH_INTERNAL
 
 template <>
-auto SEC_TYPE::Converter::convertibleInternalValues() -> const std::set<Internal>&
-{
-    #define SEC_EQUIV(INT_VAL, EXT_VAL) INT_VAL,
-    #define SEC_PROJ_I2E(INT_VAL, EXT_VAL) INT_VAL,
+auto SEC_TYPE::Converter::convertibleInternalValues()
+    -> const std::set<Internal>& {
+    #define SEC_EQUIV(INT_VAL, EXT_VAL) \
+        INT_VAL,
+    #define SEC_PROJ_I2E(INT_VAL, EXT_VAL) \
+        INT_VAL,
     #define SEC_PROJ_E2I(INT_VAL, EXT_VAL)
     #define SEC_ORPHAN_INT(INT_VAL)
     #define SEC_ORPHAN_EXT(EXT_VAL)
@@ -150,11 +167,13 @@ auto SEC_TYPE::Converter::convertibleInternalValues() -> const std::set<Internal
 }
 
 template <>
-auto SEC_TYPE::Converter::convertibleExternalValues() -> const std::set<External>&
-{
-    #define SEC_EQUIV(INT_VAL, EXT_VAL) EXT_VAL,
+auto SEC_TYPE::Converter::convertibleExternalValues()
+    -> const std::set<External>& {
+    #define SEC_EQUIV(INT_VAL, EXT_VAL) \
+        EXT_VAL,
     #define SEC_PROJ_I2E(INT_VAL, EXT_VAL)
-    #define SEC_PROJ_E2I(INT_VAL, EXT_VAL) EXT_VAL,
+    #define SEC_PROJ_E2I(INT_VAL, EXT_VAL) \
+        EXT_VAL,
     #define SEC_ORPHAN_INT(INT_VAL)
     #define SEC_ORPHAN_EXT(EXT_VAL)
 
@@ -171,7 +190,7 @@ auto SEC_TYPE::Converter::convertibleExternalValues() -> const std::set<External
     #undef SEC_EQUIV
 }
 
-} // namespace lguim
+}  // namespace lguim
 
 #pragma GCC diagnostic pop
 

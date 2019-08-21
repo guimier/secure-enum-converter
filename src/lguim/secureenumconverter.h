@@ -1,5 +1,8 @@
-#ifndef LGUIM_SECURE_ENUM_CONVERTER
-#define LGUIM_SECURE_ENUM_CONVERTER
+// Copyright 2019 Lucien Guimier <lucien.guimier@laposte.net>
+// Released according to the MIT terms. See attached LICENSE file.
+
+#ifndef LGUIM_SECUREENUMCONVERTER_H_
+#define LGUIM_SECUREENUMCONVERTER_H_
 
 #include <set>
 #include <stdexcept>
@@ -115,44 +118,46 @@ struct SecureEnumConverter {
         return *externalOpt;
     }
 
-private:
+ private:
     static const char* converter() { return __PRETTY_FUNCTION__; }
 };
 
 namespace priv {
-    template <bool toExternal, typename Converter>
-    struct OneDirectionConverter;
 
-    template <typename Converter> // To external
-    struct OneDirectionConverter<true, Converter> {
-        using Input = typename Converter::Internal;
-        using Output = typename Converter::External;
+template <bool toExternal, typename Converter>
+struct OneDirectionConverter;
 
-        static SEC_OPTIONAL_NS::optional<Output> convertOpt(Input input)
-        { return Converter::toExternalOpt(input); }
+template <typename Converter>  // To external
+struct OneDirectionConverter<true, Converter> {
+    using Input = typename Converter::Internal;
+    using Output = typename Converter::External;
 
-        static Output convertOrThrow(Input input)
-        { return Converter::toExternalOrThrow(input); }
+    static SEC_OPTIONAL_NS::optional<Output> convertOpt(Input input)
+    { return Converter::toExternalOpt(input); }
 
-        static const std::set<Output>& convertibleValues()
-        { return Converter::convertibleExternalValues(); }
-    };
+    static Output convertOrThrow(Input input)
+    { return Converter::toExternalOrThrow(input); }
 
-    template <typename Converter> // To internal
-    struct OneDirectionConverter<false, Converter> {
-        using Input = typename Converter::External;
-        using Output = typename Converter::Internal;
+    static const std::set<Output>& convertibleValues()
+    { return Converter::convertibleExternalValues(); }
+};
 
-        static SEC_OPTIONAL_NS::optional<Output> convertOpt(Input input)
-        { return Converter::toInternalOpt(input); }
+template <typename Converter>  // To internal
+struct OneDirectionConverter<false, Converter> {
+    using Input = typename Converter::External;
+    using Output = typename Converter::Internal;
 
-        static Output convertOrThrow(Input input)
-        { return Converter::toInternalOrThrow(input); }
+    static SEC_OPTIONAL_NS::optional<Output> convertOpt(Input input)
+    { return Converter::toInternalOpt(input); }
 
-        static const std::set<Output>& convertibleValues()
-        { return Converter::convertibleInternalValues(); }
-    };
-}
+    static Output convertOrThrow(Input input)
+    { return Converter::toInternalOrThrow(input); }
+
+    static const std::set<Output>& convertibleValues()
+    { return Converter::convertibleInternalValues(); }
+};
+
+}  // namespace priv
 
 /** `TaggedEnumConverter` is a subclass of `SecureEnumConverter`, providing a
  * more natural interface to the `SecureEnumConverter` API than the primary
@@ -180,9 +185,13 @@ namespace priv {
  *
  * If you don’t need a different type, you may use `TypedEnumConverter` instead.
  */
-template <typename InternalTag, typename InternalType, typename ExternalTag, typename ExternalType, typename Tag = void>
-struct TaggedEnumConverter: public SecureEnumConverter<InternalType, ExternalType, Tag> {
-
+template <
+    typename InternalTag, typename InternalType,
+    typename ExternalTag, typename ExternalType,
+    typename Tag = void
+>
+struct TaggedEnumConverter:
+    public SecureEnumConverter<InternalType, ExternalType, Tag> {
     /** Helper for implementation of tag-using method.
      *
      * This type is exposed in case you want to add extension methods or
@@ -195,23 +204,25 @@ struct TaggedEnumConverter: public SecureEnumConverter<InternalType, ExternalTyp
     >;
 
     template <typename DirectionTag>
-    static SEC_OPTIONAL_NS::optional<typename HalfConverter<DirectionTag>::Output>
+    static
+    SEC_OPTIONAL_NS::optional<typename HalfConverter<DirectionTag>::Output>
     convertOpt(typename HalfConverter<DirectionTag>::Input input) {
         return HalfConverter<DirectionTag>::convertOpt(input);
     }
 
     template <typename DirectionTag>
-    static typename HalfConverter<DirectionTag>::Output
+    static
+    typename HalfConverter<DirectionTag>::Output
     convertOrThrow(typename HalfConverter<DirectionTag>::Input input) {
         return HalfConverter<DirectionTag>::convertOrThrow(input);
     }
 
     template <typename DirectionTag>
-    static std::set<typename HalfConverter<DirectionTag>::Output>
+    static
+    std::set<typename HalfConverter<DirectionTag>::Output>
     convertibleValues() {
         return HalfConverter<DirectionTag>::convertibleValues();
     }
-
 };
 
 /** `TaggedEnumConverter` is a subclass of `SecureEnumConverter`, providing a
@@ -234,8 +245,12 @@ struct TaggedEnumConverter: public SecureEnumConverter<InternalType, ExternalTyp
  * Except you now call `convertOpt<A>` instead of `toInternalOpt`.
  */
 template <typename InternalType, typename ExternalType, typename Tag = void>
-using TypedEnumConverter = TaggedEnumConverter<InternalType, InternalType, ExternalType, ExternalType, Tag>;
+using TypedEnumConverter = TaggedEnumConverter<
+    InternalType, InternalType,
+    ExternalType, ExternalType,
+    Tag
+>;
 
-} // namespace lguim
+}  // namespace lguim
 
-#endif // LGUIM_SECURE_ENUM_CONVERTER
+#endif  // LGUIM_SECUREENUMCONVERTER_H_

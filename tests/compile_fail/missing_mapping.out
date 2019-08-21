@@ -1,5 +1,5 @@
 In file included from tests/compile_fail/missing_mapping.cpp:13:
-src/lguim/secureenumconverter.inc:28:6: error: #error "SEC_MAPPING not defined"
+src/lguim/secureenumconverter.inc:31:6: error: #error "SEC_MAPPING not defined"
      #error "SEC_MAPPING not defined"
       ^~~~~
 compilation terminated due to -Wfatal-errors.
