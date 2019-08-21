@@ -14,7 +14,7 @@ Unfortunately this is not free and comes at the expense of:
   - Sometimes getting hard to understand compile error. This repository
     contains examples of good or almost-good compile errors, but with older
     compilers or some other errors, you might get really hard to understand
-    errors.
+    messages.
   - Not using only standard C++. Currently only GCC is fully supported. While
     it is easy to make valid programs compile on other compilers, guaranteeing
     that the build fails for invalid programs might be harder.
@@ -26,7 +26,7 @@ The public API consists in the following three templates:
     methods, by using type tags instead of the “internal”/“external”
     terminology.
   - `TypedEnumConverter` provides an even simpler interface, which is
-      probably the best for starting.
+    probably the best for starting.
 
 Example of what your code might look like:
 

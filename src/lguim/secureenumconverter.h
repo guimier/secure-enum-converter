@@ -42,8 +42,8 @@ namespace lguim {
  * usage, or define your own subclass.
  *
  * To give this class the correct mapping to use, you need to define
- * two macros and include a file. This must be placed in a single
- * translation unit. Example:
+ * two macros and include a file. The implementation file must be
+ * included in exactly one translation unit. Example:
  *
  * ```
  * // abconverter.h
@@ -62,8 +62,9 @@ namespace lguim {
  * #include "lguim/secureenumconverter.inc"
  * ```
  *
- * This inclusion must happen outside any namespace. It can happen
- * multiple times in the same translation unit.
+ * This inclusion must happen outside any namespace. The file can be
+ * included multiple times in the same translation unit, as long as
+ * there is only one inclusion for each type in the project.
  *
  * The following macros are available for the mapping:
  *
@@ -173,7 +174,7 @@ namespace priv {
  * Except you now call `convertOpt<TA>` instead of `toInternalOpt`.
  *
  * This class implements a interface that may still be too generic for your
- * need, because it allows using a tag type that is not one of the enumeration
+ * needs, because it allows using a tag type that is not one of the enumeration
  * types. This may be useful when you have two families of enumerations to
  * convert and want the tag to describe the family rather than the specific type.
  *
