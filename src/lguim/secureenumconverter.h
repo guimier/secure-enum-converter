@@ -204,22 +204,25 @@ struct TaggedEnumConverter:
     >;
 
     template <typename DirectionTag>
-    static
-    SEC_OPTIONAL_NS::optional<typename HalfConverter<DirectionTag>::Output>
-    convertOpt(typename HalfConverter<DirectionTag>::Input input) {
+    using Output = typename HalfConverter<DirectionTag>::Output;
+
+    template <typename DirectionTag>
+    using Input = typename HalfConverter<DirectionTag>::Input;
+
+    template <typename DirectionTag>
+    static SEC_OPTIONAL_NS::optional<Output<DirectionTag>>
+    convertOpt(Input<DirectionTag> input) {
         return HalfConverter<DirectionTag>::convertOpt(input);
     }
 
     template <typename DirectionTag>
-    static
-    typename HalfConverter<DirectionTag>::Output
-    convertOrThrow(typename HalfConverter<DirectionTag>::Input input) {
+    static Output<DirectionTag>
+    convertOrThrow(Input<DirectionTag> input) {
         return HalfConverter<DirectionTag>::convertOrThrow(input);
     }
 
     template <typename DirectionTag>
-    static
-    std::set<typename HalfConverter<DirectionTag>::Output>
+    static std::set<Output<DirectionTag>>
     convertibleValues() {
         return HalfConverter<DirectionTag>::convertibleValues();
     }
