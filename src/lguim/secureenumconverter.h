@@ -183,28 +183,33 @@ namespace priv {
 template <typename InternalTag, typename InternalType, typename ExternalTag, typename ExternalType, typename Tag = void>
 struct TaggedEnumConverter: public SecureEnumConverter<InternalType, ExternalType, Tag> {
 
-    template <typename DirectionTag, typename ODC = priv::OneDirectionConverter<
+    /** Helper for implementation of tag-using method.
+     *
+     * This type is exposed in case you want to add extension methods or
+     * free functions using the same “tag” mechanism.
+     */
+    template <typename DirectionTag>
+    using HalfConverter = priv::OneDirectionConverter<
         std::is_same<DirectionTag, ExternalTag>::value,
         SecureEnumConverter<InternalType, ExternalType, Tag>
-    > >
-    static SEC_OPTIONAL_NS::optional<typename ODC::Output> convertOpt(typename ODC::Input input) {
-        return ODC::convertOpt(input);
+    >;
+
+    template <typename DirectionTag>
+    static SEC_OPTIONAL_NS::optional<typename HalfConverter<DirectionTag>::Output>
+    convertOpt(typename HalfConverter<DirectionTag>::Input input) {
+        return HalfConverter<DirectionTag>::convertOpt(input);
     }
 
-    template <typename DirectionTag, typename ODC = priv::OneDirectionConverter<
-        std::is_same<DirectionTag, ExternalTag>::value,
-        SecureEnumConverter<InternalType, ExternalType, Tag>
-    > >
-    static typename ODC::Output convertOrThrow(typename ODC::Input input) {
-        return ODC::convertOrThrow(input);
+    template <typename DirectionTag>
+    static typename HalfConverter<DirectionTag>::Output
+    convertOrThrow(typename HalfConverter<DirectionTag>::Input input) {
+        return HalfConverter<DirectionTag>::convertOrThrow(input);
     }
 
-    template <typename DirectionTag, typename ODC = priv::OneDirectionConverter<
-        std::is_same<DirectionTag, ExternalTag>::value,
-        SecureEnumConverter<InternalType, ExternalType, Tag>
-    > >
-    static std::set<typename ODC::Output> convertibleValues() {
-        return ODC::convertibleValues();
+    template <typename DirectionTag>
+    static std::set<typename HalfConverter<DirectionTag>::Output>
+    convertibleValues() {
+        return HalfConverter<DirectionTag>::convertibleValues();
     }
 
 };
