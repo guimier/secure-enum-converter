@@ -4,4 +4,9 @@ pipelines:
   default:
     - step:
         script:
+          # Dependencies
+          - apt update
+          - apt install -y python-pip
+          - pip install cpplint
+          # Run tests
           - make
