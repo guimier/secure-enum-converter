@@ -68,18 +68,18 @@ template <>
 auto SEC_TYPE::Converter::toInternalOpt(External external)
     -> SEC_OPTIONAL_NS::optional<Internal> {
     #define SEC_EQUIV(INT_VAL, EXT_VAL) \
-        if (external == EXT_VAL) { return INT_VAL; } else
+        if (external == EXT_VAL) { return INT_VAL; }
     #define SEC_PROJ_I2E(INT_VAL, EXT_VAL)
     #define SEC_PROJ_E2I(INT_VAL, EXT_VAL) \
-        if (external == EXT_VAL) { return INT_VAL; } else
+        if (external == EXT_VAL) { return INT_VAL; }
     #define SEC_ORPHAN_INT(INT_VAL)
     #define SEC_ORPHAN_EXT(EXT_VAL) \
-        if (external == EXT_VAL) { return SEC_OPTIONAL_NS::nullopt; } else
+        if (external == EXT_VAL) { return SEC_OPTIONAL_NS::nullopt; }
 
-    SEC_MAPPING {
-        // This is unreachable if SEC_MAPPING is properly defined.
-        return SEC_OPTIONAL_NS::nullopt;
-    }
+    SEC_MAPPING
+
+    // This is unreachable if SEC_MAPPING is properly defined.
+    return SEC_OPTIONAL_NS::nullopt;
 
     #undef SEC_ORPHAN_INT
     #undef SEC_ORPHAN_EXT
@@ -121,18 +121,18 @@ template <>
 auto SEC_TYPE::Converter::toExternalOpt(Internal internal)
     -> SEC_OPTIONAL_NS::optional<External> {
     #define SEC_EQUIV(INT_VAL, EXT_VAL) \
-        if (internal == INT_VAL) { return EXT_VAL; } else
+        if (internal == INT_VAL) { return EXT_VAL; }
     #define SEC_PROJ_I2E(INT_VAL, EXT_VAL) \
-        if (internal == INT_VAL) { return EXT_VAL; } else
+        if (internal == INT_VAL) { return EXT_VAL; }
     #define SEC_PROJ_E2I(INT_VAL, EXT_VAL)
     #define SEC_ORPHAN_INT(INT_VAL) \
-        if (internal == INT_VAL) { return SEC_OPTIONAL_NS::optional; } else
+        if (internal == INT_VAL) { return SEC_OPTIONAL_NS::optional; }
     #define SEC_ORPHAN_EXT(EXT_VAL)
 
-    SEC_MAPPING {
-        // This is unreachable if SEC_MAPPING is properly defined.
-        return SEC_OPTIONAL_NS::nullopt;
-    }
+    SEC_MAPPING
+
+    // This is unreachable if SEC_MAPPING is properly defined.
+    return SEC_OPTIONAL_NS::nullopt;
 
     #undef SEC_ORPHAN_INT
     #undef SEC_ORPHAN_EXT
