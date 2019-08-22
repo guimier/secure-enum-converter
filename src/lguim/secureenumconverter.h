@@ -203,6 +203,17 @@ struct TaggedEnumConverter:
         SecureEnumConverter<InternalType, ExternalType, Tag>
     >;
 
+    /** Helper for implementation of tag-using method.
+     *
+     * This type is exposed in case you want to add extension methods or
+     * free functions using the same “tag” mechanism.
+     */
+    template <typename DirectionTag>
+    using ReversedHalfConverter = priv::OneDirectionConverter<
+        !std::is_same<DirectionTag, ExternalTag>::value,
+        SecureEnumConverter<InternalType, ExternalType, Tag>
+    >;
+
     template <typename DirectionTag>
     using Output = typename HalfConverter<DirectionTag>::Output;
 

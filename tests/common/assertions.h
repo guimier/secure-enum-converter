@@ -53,6 +53,19 @@
 
 #define COMPARE_EQ(ACTUAL, EXPECTED) COMPARE_OP(ACTUAL, EXPECTED, ==)
 
+// Could be implemented with `static_assert` (and it actually was the initial
+// implementation), but the report will be more readable this way.
+#define ASSERT(...)                                           \
+    do {                                                      \
+        if (tst_fails(__VA_ARGS__)) {                         \
+            tst_status.errors                                 \
+                << "\tASSERTION FAILED: "                     \
+                << #__VA_ARGS__                               \
+                << " (" << __FILE__ << ":" << __LINE__ << ")" \
+                << std::endl;                                 \
+        }                                                     \
+    } while (false)
+
 #define THROWS(TYPE, EXPR)                                    \
     do {                                                      \
         bool thr_ok = true;                                   \
