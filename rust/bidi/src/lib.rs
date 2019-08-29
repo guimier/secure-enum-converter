@@ -22,7 +22,7 @@ mod tests {
     /* Rule syntax idea goal:
      *   - equivalence: `A1 == B1`
      *   - projection:  `A3 => B1`, `A2 <= B4`
-     *   - orphan:      `A5 => ()`, `() <= B6`
+     *   - orphan:      `A5 => _ `, `_  <= B6`
      */
 
     bidi!(DirectConverter<A, B> {
