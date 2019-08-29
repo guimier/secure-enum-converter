@@ -2,7 +2,7 @@ extern crate proc_macro;
 
 use std::iter::FromIterator;
 use proc_macro2::{TokenStream, Delimiter, TokenTree, Spacing};
-use quote::quote;
+use quote::{quote, format_ident};
 
 mod model {
     use super::*;
@@ -16,6 +16,8 @@ mod model {
         OrphanExternal(TokenTree),
     }
 
+    pub type Rules = Vec<Rule>;
+
     #[derive(Debug)]
     pub struct Definition {
         pub name: TokenTree,
@@ -28,7 +30,7 @@ mod model {
 mod rules_parser {
     use super::*;
 
-    type Data = Vec<model::Rule>;
+    type Data = model::Rules;
 
     #[derive(Debug, Clone, Copy)] enum Op1 { Eq, Lt }
     #[derive(Debug, Clone, Copy)] enum Op2 { Eq, Gt }
@@ -251,8 +253,45 @@ fn mirror(direct: &model::Definition) -> model::Definition {
     }
 }
 
-fn generate_impl(def: &model::Definition) -> TokenStream {
+const INTERNAL_CONVERTIBLES_CONSTANT: &str = "INTERNAL_CONVERTIBLES";
+const EXTERNAL_CONVERTIBLES_CONSTANT: &str = "EXTERNAL_CONVERTIBLES";
+
+fn generate_convertibles_array(type_: &TokenStream, rules: &model::Rules) -> TokenStream {
+    let names = rules.iter()
+        .filter_map(|rule| match rule {
+            model::Rule::Equivalence(internal, ..) => Some(internal),
+            model::Rule::ProjectionToInternal(..) => None,
+            model::Rule::ProjectionToExternal(internal, ..) => Some(internal),
+            model::Rule::OrphanInternal(..) => None,
+            model::Rule::OrphanExternal(..) => None,
+        })
+        .map(|variant| quote!(#type_::#variant));
+
+    quote!{
+        [
+            #(#names ,)*
+        ]
+    }
+}
+
+fn generate_struct_impl(def: &model::Definition, mirror_rules: &model::Rules) -> TokenStream {
+    let model::Definition { name, internal_type, external_type, rules: direct_rules } = def;
+    let int_constant_name = format_ident!("{}", INTERNAL_CONVERTIBLES_CONSTANT);
+    let ext_constant_name = format_ident!("{}", EXTERNAL_CONVERTIBLES_CONSTANT);
+    let int_constant = generate_convertibles_array(internal_type, direct_rules);
+    let ext_constant = generate_convertibles_array(external_type, mirror_rules);
+
+    quote!{
+        impl #name {
+            const #int_constant_name: &'static [#internal_type] = &#int_constant;
+            const #ext_constant_name: &'static [#external_type] = &#ext_constant;
+        }
+    }
+}
+
+fn generate_partial_impl(def: &model::Definition, const_name: &str) -> TokenStream {
     let model::Definition { name, internal_type, external_type, rules } = def;
+    let constant_name = format_ident!("{}", const_name);
 
     // TODO Refer to ::bidi:: instead of crate::
     quote!{
@@ -262,7 +301,7 @@ fn generate_impl(def: &model::Definition) -> TokenStream {
             }
 
             fn convertible_values() -> &'static [#internal_type] {
-                &[]
+                Self::#constant_name
             }
         }
     }
@@ -278,12 +317,14 @@ pub fn bidi(item: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let name = &definition.name;
     let out_definition = quote!( struct #name {} );
 
-    let out_impl1 = generate_impl(&definition);
-    let out_impl2 = generate_impl(&mirror);
+    let out_struct_impl = generate_struct_impl(&definition, &mirror.rules);
+    let out_partial_impl1 = generate_partial_impl(&definition, INTERNAL_CONVERTIBLES_CONSTANT);
+    let out_partial_impl2 = generate_partial_impl(&mirror, EXTERNAL_CONVERTIBLES_CONSTANT);
 
     proc_macro::TokenStream::from(quote! {
         #out_definition
-        #out_impl1
-        #out_impl2
+        #out_struct_impl
+        #out_partial_impl1
+        #out_partial_impl2
     })
 }
