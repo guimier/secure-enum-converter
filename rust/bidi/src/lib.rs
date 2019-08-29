@@ -35,20 +35,25 @@ mod tests {
         A2 == B1,
     });
 
-    // #[test]
-    // fn direct_convertible_values() {
-    //     assert!(<DirectConverter as EnumConverter<A, B>>::convertible_values() == [A::A1, A::A2]);
-    // }
+    #[test]
+    fn direct_convertible_values() {
+        assert_eq!(<DirectConverter as PartialEnumConverter<A, B>>::convertible_values(), [A::A1, A::A2]);
+    }
 
-    // #[test]
-    // fn direct_to_external() {
-    //     assert!(DirectConverter::convert_opt(&A::A1) == Some(B::B1));
-    //     assert!(DirectConverter::convert_opt(&A::A2) == Some(B::B2));
-    // }
+    #[test]
+    fn reversed_convertible_values() {
+        assert_eq!(<DirectConverter as PartialEnumConverter<B, A>>::convertible_values(), [B::B1, B::B2]);
+    }
 
-    // #[test]
-    // fn reversed_to_external() {
-    //     assert!(DirectConverter::convert_opt(&A::A1) == Some(B::B2));
-    //     assert!(DirectConverter::convert_opt(&A::A2) == Some(B::B1));
-    // }
+    #[test]
+    fn direct_to_external() {
+        assert_eq!(DirectConverter::convert_opt(&A::A1), Some(B::B1));
+        assert_eq!(DirectConverter::convert_opt(&A::A2), Some(B::B2));
+    }
+
+    #[test]
+    fn reversed_to_external() {
+        assert_eq!(DirectConverter::convert_opt(&A::A1), Some(B::B2));
+        assert_eq!(DirectConverter::convert_opt(&A::A2), Some(B::B1));
+    }
 }

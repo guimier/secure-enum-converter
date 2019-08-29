@@ -2,6 +2,7 @@ extern crate proc_macro;
 
 use std::iter::FromIterator;
 use proc_macro2::{TokenStream, Delimiter, TokenTree, Spacing};
+use quote::quote;
 
 mod model {
     use super::*;
@@ -231,13 +232,58 @@ mod type_parser {
     }
 }
 
+fn mirror(direct: &model::Definition) -> model::Definition {
+    use model::Rule::*;
+
+    model::Definition {
+        name: direct.name.clone(),
+        external_type: direct.internal_type.clone(),
+        internal_type: direct.external_type.clone(),
+        rules: direct.rules.iter()
+            .map(|rule| match rule.clone() {
+                Equivalence(internal, external) => Equivalence(external, internal),
+                ProjectionToExternal(internal, external) => ProjectionToInternal(external, internal),
+                ProjectionToInternal(internal, external) => ProjectionToExternal(external, internal),
+                OrphanExternal(external) => OrphanInternal(external),
+                OrphanInternal(internal) => OrphanExternal(internal),
+            })
+            .collect()
+    }
+}
+
+fn generate_impl(def: &model::Definition) -> TokenStream {
+    let model::Definition { name, internal_type, external_type, rules } = def;
+
+    // TODO Refer to ::bidi:: instead of crate::
+    quote!{
+        impl crate::PartialEnumConverter<#internal_type, #external_type> for #name {
+            fn convert_opt(internal_value: &#internal_type) -> Option<#external_type> {
+                None
+            }
+
+            fn convertible_values() -> &'static [#internal_type] {
+                &[]
+            }
+        }
+    }
+}
+
 #[proc_macro]
 pub fn bidi(item: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let item = TokenStream::from(item);
-    let definition = type_parser::parse(item);
-    let name = definition.name;
 
-    proc_macro::TokenStream::from(quote::quote!(
-        struct #name {}
-    ))
+    let definition = type_parser::parse(item);
+    let mirror = mirror(&definition);
+
+    let name = &definition.name;
+    let out_definition = quote!( struct #name {} );
+
+    let out_impl1 = generate_impl(&definition);
+    let out_impl2 = generate_impl(&mirror);
+
+    proc_macro::TokenStream::from(quote! {
+        #out_definition
+        #out_impl1
+        #out_impl2
+    })
 }
