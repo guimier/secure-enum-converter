@@ -3,7 +3,9 @@ pub trait PartialEnumConverter<FromType, ToType> {
     fn convertible_values() -> &'static [FromType];
 }
 
-pub trait EnumConverter<FromType, ToType>: PartialEnumConverter<FromType, ToType> {
+pub unsafe trait EnumConverter<FromType, ToType>:
+    PartialEnumConverter<FromType, ToType>
+{
     fn convert(from_value: &FromType) -> ToType {
         Self::convert_opt(from_value).unwrap()
     }
@@ -58,14 +60,42 @@ mod tests {
     }
 
     #[test]
-    fn direct_to_external() {
+    fn direct_opt_conversions() {
+        // First direction
         assert_eq!(DirectConverter::convert_opt(&A::A1), Some(B::B1));
         assert_eq!(DirectConverter::convert_opt(&A::A2), Some(B::B2));
+        // Second direction
+        assert_eq!(DirectConverter::convert_opt(&B::B1), Some(A::A1));
+        assert_eq!(DirectConverter::convert_opt(&B::B2), Some(A::A2));
     }
 
     #[test]
-    fn reversed_to_external() {
+    fn direct_conversions() {
+        // First direction
+        assert_eq!(DirectConverter::convert(&A::A1), B::B1);
+        assert_eq!(DirectConverter::convert(&A::A2), B::B2);
+        // Second direction
+        assert_eq!(DirectConverter::convert(&B::B1), A::A1);
+        assert_eq!(DirectConverter::convert(&B::B2), A::A2);
+    }
+
+    #[test]
+    fn reversed_opt_conversions() {
+        // First direction
         assert_eq!(ReversedConverter::convert_opt(&A::A1), Some(B::B2));
         assert_eq!(ReversedConverter::convert_opt(&A::A2), Some(B::B1));
+        // Second direction
+        assert_eq!(ReversedConverter::convert_opt(&B::B2), Some(A::A1));
+        assert_eq!(ReversedConverter::convert_opt(&B::B1), Some(A::A2));
+    }
+
+    #[test]
+    fn reversed_conversions() {
+        // First direction
+        assert_eq!(ReversedConverter::convert(&A::A1), B::B2);
+        assert_eq!(ReversedConverter::convert(&A::A2), B::B1);
+        // Second direction
+        assert_eq!(ReversedConverter::convert(&B::B2), A::A1);
+        assert_eq!(ReversedConverter::convert(&B::B1), A::A2);
     }
 }

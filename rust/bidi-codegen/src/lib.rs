@@ -353,6 +353,28 @@ fn generate_partial_impl(def: &model::Definition, const_name: &str) -> TokenStre
     }
 }
 
+fn generate_complete_impl(def: &model::Definition) -> TokenStream {
+    if def.rules.iter().all(|rule| match rule {
+        model::Rule::Equivalence(..) => true,
+        model::Rule::ProjectionToInternal(..) => true,
+        model::Rule::ProjectionToExternal(..) => true,
+        model::Rule::OrphanInternal(..) => false,
+        model::Rule::OrphanExternal(..) => true,
+    }) {
+        let model::Definition {
+            name,
+            external_type,
+            internal_type,
+            ..
+        } = def;
+        quote!(
+            unsafe impl crate::EnumConverter<#internal_type, #external_type> for #name {}
+        )
+    } else {
+        TokenStream::new()
+    }
+}
+
 #[proc_macro]
 pub fn bidi(item: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let item = TokenStream::from(item);
@@ -366,11 +388,15 @@ pub fn bidi(item: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let out_struct_impl = generate_struct_impl(&definition, &mirror.rules);
     let out_partial_impl1 = generate_partial_impl(&definition, INTERNAL_CONVERTIBLES_CONSTANT);
     let out_partial_impl2 = generate_partial_impl(&mirror, EXTERNAL_CONVERTIBLES_CONSTANT);
+    let out_complete_impl1 = generate_complete_impl(&definition);
+    let out_complete_impl2 = generate_complete_impl(&mirror);
 
     proc_macro::TokenStream::from(quote! {
         #out_definition
         #out_struct_impl
         #out_partial_impl1
+        #out_complete_impl1
         #out_partial_impl2
+        #out_complete_impl2
     })
 }
