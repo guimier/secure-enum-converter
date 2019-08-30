@@ -147,39 +147,51 @@ mod rules_parser {
 mod type_parser {
     use super::*;
 
-    #[derive(Debug, Clone)]
-    struct Data {
-        name: TokenTree,
-        internal: Vec<TokenTree>,
-        external: Vec<TokenTree>,
+    #[derive(Debug)]
+    enum TypeNameState {
+        Init,
+        Ready(Vec<TokenTree>),
+        C1(Vec<TokenTree>),
+        C2(Vec<TokenTree>),
     }
 
-    impl Data {
-        pub fn new(name: TokenTree) -> Self {
-            Data {
-                name,
-                internal: vec![],
-                external: vec![],
+    fn vec_with<T>(orig: &Vec<T>, new: &T) -> Vec<T>
+    where T: Clone {
+        let mut new_vec = orig.clone();
+        new_vec.push(new.clone());
+        new_vec
+    }
+
+    impl TypeNameState {
+        pub fn next_step(&self, tt: &TokenTree) -> Self {
+            use TypeNameState::*;
+            use TokenTree::*;
+
+            match (self, tt) {
+                (Init, Ident(..)) =>
+                    Ready(vec![tt.clone()]),
+
+                (Init, Punct(ref p)) if p.as_char() == ':' && p.spacing() == Spacing::Joint =>
+                    C1(vec![tt.clone()]),
+
+                (C1(ref start), Punct(ref p)) if p.as_char() == ':' =>
+                    C2(vec_with(start, tt)),
+
+                (C2(ref start), Ident(..)) =>
+                    Ready(vec_with(start, tt)),
+
+                (Ready(ref start), Punct(ref p)) if p.as_char() == ':' && p.spacing() == Spacing::Joint =>
+                    C1(vec_with(start, tt)),
+
+                _ => panic!("Unexpected token {{ {:?} || {} }}", self, tt)
             }
         }
 
-        pub fn add_internal(&self, token: TokenTree) -> Self {
-            let mut internal = self.internal.clone();
-            internal.push(token);
-            Data {
-                name: self.name.clone(),
-                internal,
-                external: self.external.clone(),
-            }
-        }
-
-        pub fn add_external(&self, token: TokenTree) -> Self {
-            let mut external = self.external.clone();
-            external.push(token);
-            Data {
-                name: self.name.clone(),
-                internal: self.internal.clone(),
-                external,
+        pub fn extract(&self) -> TokenStream {
+            if let TypeNameState::Ready(vec) = self {
+                TokenStream::from_iter(vec.clone())
+            } else {
+                panic!("Unexpected token")
             }
         }
     }
@@ -187,16 +199,10 @@ mod type_parser {
     #[derive(Debug)]
     enum State {
         Init,
-        Named(Data),
-        WillReadInternal(Data),
-        InternalReady(Data),
-        InternalSub1(Data), // TODO
-        InternalSub2(Data), // TODO
-        WillReadExternal(Data),
-        ExternalReady(Data),
-        ExternalSub1(Data), // TODO
-        ExternalSub2(Data), // TODO
-        Specified(Data),
+        Named(TokenTree),
+        ReadingInternal(TokenTree, TypeNameState),
+        ReadingExternal(TokenTree, TokenStream, TypeNameState),
+        Specified(TokenTree, TokenStream, TokenStream),
         Done(model::Definition),
     }
 
@@ -205,27 +211,28 @@ mod type_parser {
         use TokenTree::*;
 
         match (state, token.clone()) {
-            (Init, Ident(..)) => Named(Data::new(token)),
+            (Init, Ident(..)) => Named(token),
 
-            (Named(ref data), Punct(ref p)) if p.as_char() == '<' => WillReadInternal(data.clone()),
+            (Named(ref name), Punct(ref p)) if p.as_char() == '<' =>
+                ReadingInternal(name.clone(), TypeNameState::Init),
 
-            (WillReadInternal(data), Ident(..)) => InternalReady(data.add_internal(token)),
+            (ReadingInternal(ref name, ref state), Punct(ref p)) if p.as_char() == ',' =>
+                ReadingExternal(name.clone(), state.extract(), TypeNameState::Init),
 
-            (InternalReady(ref data), Punct(ref p)) if p.as_char() == ',' => {
-                WillReadExternal(data.clone())
-            }
+            (ReadingInternal(name, state), token) =>
+                ReadingInternal(name, state.next_step(&token)),
 
-            (WillReadExternal(data), Ident(..)) => ExternalReady(data.add_external(token)),
+            (ReadingExternal(ref name, ref internal, ref state), Punct(ref p)) if p.as_char() == '>' =>
+                Specified(name.clone(), internal.clone(), state.extract()),
 
-            (ExternalReady(ref data), Punct(ref p)) if p.as_char() == '>' => {
-                Specified(data.clone())
-            }
+            (ReadingExternal(name, internal, state), token) =>
+                ReadingExternal(name, internal, state.next_step(&token)),
 
-            (Specified(ref data), Group(ref g)) if g.delimiter() == Delimiter::Brace => {
+            (Specified(ref name, ref internal, ref external), Group(ref g)) if g.delimiter() == Delimiter::Brace => {
                 Done(model::Definition {
-                    name: data.name.clone(),
-                    internal_type: TokenStream::from_iter(data.internal.clone()),
-                    external_type: TokenStream::from_iter(data.external.clone()),
+                    name: name.clone(),
+                    internal_type: internal.clone(),
+                    external_type: external.clone(),
                     rules: rules_parser::parse(g.stream()),
                 })
             }
