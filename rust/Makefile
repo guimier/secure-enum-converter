@@ -2,7 +2,7 @@ SHELL = bash
 export LANG = C
 
 TESTS_DIR = tests
-TOOLS = $(PWD)/../tools
+TOOLS = $(CURDIR)/../tools
 
 TESTS_CF_DIR = $(TESTS_DIR)/compile_fail
 TESTS_CF_SRC = $(filter-out %.out,$(wildcard $(TESTS_CF_DIR)/*/))
