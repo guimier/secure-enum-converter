@@ -1,0 +1,11 @@
+[package]
+name = "unhandled_external"
+version = "0.1.0"
+authors = ["Lucien Guimier <lucien.guimier@laposte.net>"]
+edition = "2018"
+
+[workspace]
+
+[dependencies]
+bidi-codegen = { path = "../../../bidi-codegen" }
+bidi = { path = "../../../bidi" }

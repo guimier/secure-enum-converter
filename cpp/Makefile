@@ -52,7 +52,7 @@ virt/lint:
 	cpplint --extensions=h,inc $(SRC_FILES)
 
 virt/all-tests: virt/cf-tests virt/ok-tests virt/in-tests
-	tools/check_cf_out.sh
+	../tools/check_cf_out.sh
 
 virt/cf-tests: $(TESTS_CF_TARGETS)
 
@@ -67,7 +67,7 @@ virt/all-tests-deps: $(OUT_DIR) $(ALL_DEPENDENCIES)
 
 define TESTS_CF_GENERATOR
 virt/run-cf-$(1): $$(TESTS_CF_DIR)/$(1).cpp
-	@tools/run_cf.sh "$(1)" "$$(TESTS_CF_DIR)/$(1).out" $$(CXX) $$(CXX17FLAGS) $$< -o /dev/null
+	@../tools/run_cf.sh "$(1)" "$$(TESTS_CF_DIR)/$(1).out" $$(CXX) $$(CXX17FLAGS) $$< -o /dev/null
 endef
 $(foreach i,$(TESTS_CF_NAMES),$(eval $(call TESTS_CF_GENERATOR,$(i))))
 
