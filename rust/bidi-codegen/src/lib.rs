@@ -105,17 +105,17 @@ mod rules_parser {
                     (Op1::Eq, Op2::Gt) => {
                         assert!(!is_trap(&internal));
                         if is_trap(&external) {
-                            model::Rule::ProjectionToExternal(internal, external)
-                        } else {
                             model::Rule::OrphanInternal(internal)
+                        } else {
+                            model::Rule::ProjectionToExternal(internal, external)
                         }
                     }
                     (Op1::Lt, Op2::Eq) => {
                         assert!(!is_trap(&external));
                         if is_trap(&internal) {
-                            model::Rule::ProjectionToInternal(internal, external)
-                        } else {
                             model::Rule::OrphanExternal(external)
+                        } else {
+                            model::Rule::ProjectionToInternal(internal, external)
                         }
                     }
                     (Op1::Lt, Op2::Gt) => panic!("<> is not an acceptable relation"),
