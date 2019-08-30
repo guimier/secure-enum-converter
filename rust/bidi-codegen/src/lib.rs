@@ -325,11 +325,25 @@ fn generate_partial_impl(def: &model::Definition, const_name: &str) -> TokenStre
     } = def;
     let constant_name = format_ident!("{}", const_name);
 
+    let rules = rules.iter().filter_map(|rule| match rule {
+        model::Rule::Equivalence(internal, external) => {
+            Some(quote!(#internal_type::#internal => Some(#external_type::#external)))
+        }
+        model::Rule::ProjectionToInternal(..) => None,
+        model::Rule::ProjectionToExternal(internal, external) => {
+            Some(quote!(#internal_type::#internal => Some(#external_type::#external)))
+        }
+        model::Rule::OrphanInternal(internal) => Some(quote!(#internal_type::#internal => None)),
+        model::Rule::OrphanExternal(..) => None,
+    });
+
     // TODO Refer to ::bidi:: instead of crate::
     quote! {
         impl crate::PartialEnumConverter<#internal_type, #external_type> for #name {
             fn convert_opt(internal_value: &#internal_type) -> Option<#external_type> {
-                None
+                match internal_value {
+                    #(#rules,)*
+                }
             }
 
             fn convertible_values() -> &'static [#internal_type] {

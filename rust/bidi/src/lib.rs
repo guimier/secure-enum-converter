@@ -65,7 +65,7 @@ mod tests {
 
     #[test]
     fn reversed_to_external() {
-        assert_eq!(DirectConverter::convert_opt(&A::A1), Some(B::B2));
-        assert_eq!(DirectConverter::convert_opt(&A::A2), Some(B::B1));
+        assert_eq!(ReversedConverter::convert_opt(&A::A1), Some(B::B2));
+        assert_eq!(ReversedConverter::convert_opt(&A::A2), Some(B::B1));
     }
 }
