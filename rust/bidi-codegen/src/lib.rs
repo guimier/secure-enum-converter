@@ -4,6 +4,21 @@ use proc_macro2::{Delimiter, Spacing, TokenStream, TokenTree};
 use quote::{format_ident, quote};
 use std::iter::FromIterator;
 
+struct Error {
+    message: String,
+    // TODO span: Span,
+}
+
+impl Error {
+    pub fn new(msg: &str) -> Self {
+        Error {
+            message: msg.into()
+        }
+    }
+}
+
+type Result<T> = std::result::Result<T, Error>;
+
 mod model {
     use super::*;
 
@@ -60,11 +75,11 @@ mod rules_parser {
         }
     }
 
-    fn next_step(state: State, token: TokenTree) -> State {
+    fn next_step(state: State, token: TokenTree) -> Result<State> {
         use State::*;
         use TokenTree::*;
 
-        match (state, token.clone()) {
+        Ok(match (state, token.clone()) {
             (StartOfRule(data), Ident(..)) => Internal(data, token),
 
             (Internal(ref data, ref internal), Punct(ref p))
@@ -118,7 +133,7 @@ mod rules_parser {
                             model::Rule::ProjectionToInternal(internal, external)
                         }
                     }
-                    (Op1::Lt, Op2::Gt) => panic!("<> is not an acceptable relation"),
+                    (Op1::Lt, Op2::Gt) => return Err(Error::new("<> is not an acceptable relation")),
                 });
 
                 EndOfRule(data)
@@ -126,20 +141,20 @@ mod rules_parser {
 
             (EndOfRule(ref data), Punct(ref p)) if p.as_char() == ',' => StartOfRule(data.clone()),
 
-            (st, to) => unimplemented!("{:?} {:?}", st, to),
-        }
+            (_, to) => return Err(Error::new(&format!("Unexpected token {}", to)))
+        })
     }
 
-    pub fn parse(stream: TokenStream) -> Vec<model::Rule> {
+    pub(crate) fn parse(stream: TokenStream) -> Result<Vec<model::Rule>> {
         let mut state = State::StartOfRule(vec![]);
 
         for token in stream.into_iter() {
-            state = next_step(state, token);
+            state = next_step(state, token)?;
         }
 
         match state {
-            State::StartOfRule(data) | State::EndOfRule(data) => data,
-            _ => panic!("Reached end of stream unexpectedly"),
+            State::StartOfRule(data) | State::EndOfRule(data) => Ok(data),
+            _ => Err(Error::new("Unexpected end of rules block in bidi!")),
         }
     }
 }
@@ -163,11 +178,11 @@ mod type_parser {
     }
 
     impl TypeNameState {
-        pub fn next_step(&self, tt: &TokenTree) -> Self {
+        pub fn next_step(&self, tt: &TokenTree) -> Result<Self> {
             use TypeNameState::*;
             use TokenTree::*;
 
-            match (self, tt) {
+            Ok(match (self, tt) {
                 (Init, Ident(..)) =>
                     Ready(vec![tt.clone()]),
 
@@ -183,15 +198,15 @@ mod type_parser {
                 (Ready(ref start), Punct(ref p)) if p.as_char() == ':' && p.spacing() == Spacing::Joint =>
                     C1(vec_with(start, tt)),
 
-                _ => panic!("Unexpected token {{ {:?} || {} }}", self, tt)
-            }
+                (_, to) => return Err(Error::new(&format!("Unexpected token {}", to)))
+            })
         }
 
-        pub fn extract(&self) -> TokenStream {
+        pub fn extract(&self, to: &TokenTree) -> Result<TokenStream> {
             if let TypeNameState::Ready(vec) = self {
-                TokenStream::from_iter(vec.clone())
+                Ok(TokenStream::from_iter(vec.clone()))
             } else {
-                panic!("Unexpected token")
+                Err(Error::new(&format!("Unexpected token {}", to)))
             }
         }
     }
@@ -206,52 +221,52 @@ mod type_parser {
         Done(model::Definition),
     }
 
-    fn next_step(state: State, token: TokenTree) -> State {
+    fn next_step(state: State, token: TokenTree) -> Result<State> {
         use State::*;
         use TokenTree::*;
 
-        match (state, token.clone()) {
+        Ok(match (state, token.clone()) {
             (Init, Ident(..)) => Named(token),
 
             (Named(ref name), Punct(ref p)) if p.as_char() == '<' =>
                 ReadingInternal(name.clone(), TypeNameState::Init),
 
             (ReadingInternal(ref name, ref state), Punct(ref p)) if p.as_char() == ',' =>
-                ReadingExternal(name.clone(), state.extract(), TypeNameState::Init),
+                ReadingExternal(name.clone(), state.extract(&token)?, TypeNameState::Init),
 
             (ReadingInternal(name, state), token) =>
-                ReadingInternal(name, state.next_step(&token)),
+                ReadingInternal(name, state.next_step(&token)?),
 
             (ReadingExternal(ref name, ref internal, ref state), Punct(ref p)) if p.as_char() == '>' =>
-                Specified(name.clone(), internal.clone(), state.extract()),
+                Specified(name.clone(), internal.clone(), state.extract(&token)?),
 
             (ReadingExternal(name, internal, state), token) =>
-                ReadingExternal(name, internal, state.next_step(&token)),
+                ReadingExternal(name, internal, state.next_step(&token)?),
 
             (Specified(ref name, ref internal, ref external), Group(ref g)) if g.delimiter() == Delimiter::Brace => {
                 Done(model::Definition {
                     name: name.clone(),
                     internal_type: internal.clone(),
                     external_type: external.clone(),
-                    rules: rules_parser::parse(g.stream()),
+                    rules: rules_parser::parse(g.stream())?,
                 })
             }
 
-            (st, to) => unimplemented!("{:?} {:?}", st, to),
-        }
+            (_, to) => return Err(Error::new(&format!("Unexpected token {}", to))),
+        })
     }
 
-    pub fn parse(stream: TokenStream) -> model::Definition {
+    pub(crate) fn parse(stream: TokenStream) -> Result<model::Definition> {
         let mut state = State::Init;
 
         for token in stream.into_iter() {
-            state = next_step(state, token);
+            state = next_step(state, token)?;
         }
 
         if let State::Done(definition) = state {
-            definition
+            Ok(definition)
         } else {
-            panic!("Reached end of stream unexpectedly")
+            Err(Error::new("Parse error at end of bidi!"))
         }
     }
 }
@@ -382,11 +397,10 @@ fn generate_complete_impl(def: &model::Definition) -> TokenStream {
     }
 }
 
-#[proc_macro]
-pub fn bidi(item: proc_macro::TokenStream) -> proc_macro::TokenStream {
+fn bidi_impl(item: proc_macro::TokenStream) -> Result<TokenStream> {
     let item = TokenStream::from(item);
 
-    let definition = type_parser::parse(item);
+    let definition = type_parser::parse(item)?;
     let mirror = mirror(&definition);
 
     let name = &definition.name;
@@ -398,7 +412,7 @@ pub fn bidi(item: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let out_complete_impl1 = generate_complete_impl(&definition);
     let out_complete_impl2 = generate_complete_impl(&mirror);
 
-    proc_macro::TokenStream::from(quote! {
+    Ok(quote! {
         #out_definition
         #out_struct_impl
         #out_partial_impl1
@@ -406,4 +420,19 @@ pub fn bidi(item: proc_macro::TokenStream) -> proc_macro::TokenStream {
         #out_partial_impl2
         #out_complete_impl2
     })
+}
+
+#[proc_macro]
+pub fn bidi(item: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    proc_macro::TokenStream::from(
+        match bidi_impl(item) {
+            Ok(stream) => stream,
+            Err(error) => {
+                let message = error.message;
+                quote!(
+                    ::std::compile_error!{#message}
+                )
+            }
+        }
+    )
 }
