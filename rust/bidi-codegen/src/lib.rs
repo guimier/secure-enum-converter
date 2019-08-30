@@ -1,8 +1,8 @@
 extern crate proc_macro;
 
+use proc_macro2::{Delimiter, Spacing, TokenStream, TokenTree};
+use quote::{format_ident, quote};
 use std::iter::FromIterator;
-use proc_macro2::{TokenStream, Delimiter, TokenTree, Spacing};
-use quote::{quote, format_ident};
 
 mod model {
     use super::*;
@@ -32,8 +32,16 @@ mod rules_parser {
 
     type Data = model::Rules;
 
-    #[derive(Debug, Clone, Copy)] enum Op1 { Eq, Lt }
-    #[derive(Debug, Clone, Copy)] enum Op2 { Eq, Gt }
+    #[derive(Debug, Clone, Copy)]
+    enum Op1 {
+        Eq,
+        Lt,
+    }
+    #[derive(Debug, Clone, Copy)]
+    enum Op2 {
+        Eq,
+        Gt,
+    }
 
     #[derive(Debug)]
     enum State {
@@ -57,20 +65,31 @@ mod rules_parser {
         use TokenTree::*;
 
         match (state, token.clone()) {
-            (StartOfRule(data), Ident(..)) =>
-                Internal(data, token),
+            (StartOfRule(data), Ident(..)) => Internal(data, token),
 
-            (Internal(ref data, ref internal), Punct(ref p)) if p.spacing() == Spacing::Joint && p.as_char() == '=' =>
-                FirstOperatorChar(data.clone(), internal.clone(), Op1::Eq),
+            (Internal(ref data, ref internal), Punct(ref p))
+                if p.spacing() == Spacing::Joint && p.as_char() == '=' =>
+            {
+                FirstOperatorChar(data.clone(), internal.clone(), Op1::Eq)
+            }
 
-            (Internal(ref data, ref internal), Punct(ref p)) if p.spacing() == Spacing::Joint && p.as_char() == '<' =>
-                FirstOperatorChar(data.clone(), internal.clone(), Op1::Lt),
+            (Internal(ref data, ref internal), Punct(ref p))
+                if p.spacing() == Spacing::Joint && p.as_char() == '<' =>
+            {
+                FirstOperatorChar(data.clone(), internal.clone(), Op1::Lt)
+            }
 
-            (FirstOperatorChar(ref data, ref internal, op1), Punct(ref p)) if p.as_char() == '=' =>
-                SecondOperatorChar(data.clone(), internal.clone(), op1, Op2::Eq),
+            (FirstOperatorChar(ref data, ref internal, op1), Punct(ref p))
+                if p.as_char() == '=' =>
+            {
+                SecondOperatorChar(data.clone(), internal.clone(), op1, Op2::Eq)
+            }
 
-            (FirstOperatorChar(ref data, ref internal, op1), Punct(ref p)) if p.as_char() == '>' =>
-                SecondOperatorChar(data.clone(), internal.clone(), op1, Op2::Gt),
+            (FirstOperatorChar(ref data, ref internal, op1), Punct(ref p))
+                if p.as_char() == '>' =>
+            {
+                SecondOperatorChar(data.clone(), internal.clone(), op1, Op2::Gt)
+            }
 
             (SecondOperatorChar(ref data, ref internal, op1, op2), Ident(..)) => {
                 let internal = internal.clone();
@@ -82,7 +101,7 @@ mod rules_parser {
                         assert!(!is_trap(&internal));
                         assert!(!is_trap(&external));
                         model::Rule::Equivalence(internal, external)
-                    },
+                    }
                     (Op1::Eq, Op2::Gt) => {
                         assert!(!is_trap(&internal));
                         if is_trap(&external) {
@@ -90,7 +109,7 @@ mod rules_parser {
                         } else {
                             model::Rule::OrphanInternal(internal)
                         }
-                    },
+                    }
                     (Op1::Lt, Op2::Eq) => {
                         assert!(!is_trap(&external));
                         if is_trap(&internal) {
@@ -98,17 +117,14 @@ mod rules_parser {
                         } else {
                             model::Rule::OrphanExternal(external)
                         }
-                    },
-                    (Op1::Lt, Op2::Gt) => {
-                        panic!("<> is not an acceptable relation")
                     }
+                    (Op1::Lt, Op2::Gt) => panic!("<> is not an acceptable relation"),
                 });
 
                 EndOfRule(data)
-            },
+            }
 
-            (EndOfRule(ref data), Punct(ref p)) if p.as_char() == ',' =>
-                StartOfRule(data.clone()),
+            (EndOfRule(ref data), Punct(ref p)) if p.as_char() == ',' => StartOfRule(data.clone()),
 
             (st, to) => unimplemented!("{:?} {:?}", st, to),
         }
@@ -135,7 +151,7 @@ mod type_parser {
     struct Data {
         name: TokenTree,
         internal: Vec<TokenTree>,
-        external: Vec<TokenTree>
+        external: Vec<TokenTree>,
     }
 
     impl Data {
@@ -189,31 +205,30 @@ mod type_parser {
         use TokenTree::*;
 
         match (state, token.clone()) {
-            (Init, Ident(..)) =>
-                Named(Data::new(token)),
+            (Init, Ident(..)) => Named(Data::new(token)),
 
-            (Named(ref data), Punct(ref p)) if p.as_char() == '<' =>
-                WillReadInternal(data.clone()),
+            (Named(ref data), Punct(ref p)) if p.as_char() == '<' => WillReadInternal(data.clone()),
 
-            (WillReadInternal(data), Ident(..)) =>
-                InternalReady(data.add_internal(token)),
+            (WillReadInternal(data), Ident(..)) => InternalReady(data.add_internal(token)),
 
-            (InternalReady(ref data), Punct(ref p)) if p.as_char() == ',' =>
-                WillReadExternal(data.clone()),
+            (InternalReady(ref data), Punct(ref p)) if p.as_char() == ',' => {
+                WillReadExternal(data.clone())
+            }
 
-            (WillReadExternal(data), Ident(..)) =>
-                ExternalReady(data.add_external(token)),
+            (WillReadExternal(data), Ident(..)) => ExternalReady(data.add_external(token)),
 
-            (ExternalReady(ref data), Punct(ref p)) if p.as_char() == '>' =>
-                Specified(data.clone()),
+            (ExternalReady(ref data), Punct(ref p)) if p.as_char() == '>' => {
+                Specified(data.clone())
+            }
 
-            (Specified(ref data), Group(ref g)) if g.delimiter() == Delimiter::Brace =>
+            (Specified(ref data), Group(ref g)) if g.delimiter() == Delimiter::Brace => {
                 Done(model::Definition {
                     name: data.name.clone(),
                     internal_type: TokenStream::from_iter(data.internal.clone()),
                     external_type: TokenStream::from_iter(data.external.clone()),
                     rules: rules_parser::parse(g.stream()),
-                }),
+                })
+            }
 
             (st, to) => unimplemented!("{:?} {:?}", st, to),
         }
@@ -241,15 +256,21 @@ fn mirror(direct: &model::Definition) -> model::Definition {
         name: direct.name.clone(),
         external_type: direct.internal_type.clone(),
         internal_type: direct.external_type.clone(),
-        rules: direct.rules.iter()
+        rules: direct
+            .rules
+            .iter()
             .map(|rule| match rule.clone() {
                 Equivalence(internal, external) => Equivalence(external, internal),
-                ProjectionToExternal(internal, external) => ProjectionToInternal(external, internal),
-                ProjectionToInternal(internal, external) => ProjectionToExternal(external, internal),
+                ProjectionToExternal(internal, external) => {
+                    ProjectionToInternal(external, internal)
+                }
+                ProjectionToInternal(internal, external) => {
+                    ProjectionToExternal(external, internal)
+                }
                 OrphanExternal(external) => OrphanInternal(external),
                 OrphanInternal(internal) => OrphanExternal(internal),
             })
-            .collect()
+            .collect(),
     }
 }
 
@@ -257,7 +278,8 @@ const INTERNAL_CONVERTIBLES_CONSTANT: &str = "INTERNAL_CONVERTIBLES";
 const EXTERNAL_CONVERTIBLES_CONSTANT: &str = "EXTERNAL_CONVERTIBLES";
 
 fn generate_convertibles_array(type_: &TokenStream, rules: &model::Rules) -> TokenStream {
-    let names = rules.iter()
+    let names = rules
+        .iter()
         .filter_map(|rule| match rule {
             model::Rule::Equivalence(internal, ..) => Some(internal),
             model::Rule::ProjectionToInternal(..) => None,
@@ -267,7 +289,7 @@ fn generate_convertibles_array(type_: &TokenStream, rules: &model::Rules) -> Tok
         })
         .map(|variant| quote!(#type_::#variant));
 
-    quote!{
+    quote! {
         [
             #(#names ,)*
         ]
@@ -275,13 +297,18 @@ fn generate_convertibles_array(type_: &TokenStream, rules: &model::Rules) -> Tok
 }
 
 fn generate_struct_impl(def: &model::Definition, mirror_rules: &model::Rules) -> TokenStream {
-    let model::Definition { name, internal_type, external_type, rules: direct_rules } = def;
+    let model::Definition {
+        name,
+        internal_type,
+        external_type,
+        rules: direct_rules,
+    } = def;
     let int_constant_name = format_ident!("{}", INTERNAL_CONVERTIBLES_CONSTANT);
     let ext_constant_name = format_ident!("{}", EXTERNAL_CONVERTIBLES_CONSTANT);
     let int_constant = generate_convertibles_array(internal_type, direct_rules);
     let ext_constant = generate_convertibles_array(external_type, mirror_rules);
 
-    quote!{
+    quote! {
         impl #name {
             const #int_constant_name: &'static [#internal_type] = &#int_constant;
             const #ext_constant_name: &'static [#external_type] = &#ext_constant;
@@ -290,11 +317,16 @@ fn generate_struct_impl(def: &model::Definition, mirror_rules: &model::Rules) ->
 }
 
 fn generate_partial_impl(def: &model::Definition, const_name: &str) -> TokenStream {
-    let model::Definition { name, internal_type, external_type, rules } = def;
+    let model::Definition {
+        name,
+        internal_type,
+        external_type,
+        rules,
+    } = def;
     let constant_name = format_ident!("{}", const_name);
 
     // TODO Refer to ::bidi:: instead of crate::
-    quote!{
+    quote! {
         impl crate::PartialEnumConverter<#internal_type, #external_type> for #name {
             fn convert_opt(internal_value: &#internal_type) -> Option<#external_type> {
                 None

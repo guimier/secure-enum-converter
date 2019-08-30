@@ -11,13 +11,19 @@ pub trait EnumConverter<FromType, ToType>: PartialEnumConverter<FromType, ToType
 
 #[cfg(test)]
 mod tests {
-    use bidi_codegen::*;
     use super::*;
+    use bidi_codegen::*;
 
     #[derive(Debug, Eq, PartialEq)]
-    enum A { A1, A2 }
+    enum A {
+        A1,
+        A2,
+    }
     #[derive(Debug, Eq, PartialEq)]
-    enum B { B1, B2 }
+    enum B {
+        B1,
+        B2,
+    }
 
     /* Rule syntax idea goal:
      *   - equivalence: `A1 == B1`
@@ -37,12 +43,18 @@ mod tests {
 
     #[test]
     fn direct_convertible_values() {
-        assert_eq!(<DirectConverter as PartialEnumConverter<A, B>>::convertible_values(), [A::A1, A::A2]);
+        assert_eq!(
+            <DirectConverter as PartialEnumConverter<A, B>>::convertible_values(),
+            [A::A1, A::A2]
+        );
     }
 
     #[test]
     fn reversed_convertible_values() {
-        assert_eq!(<DirectConverter as PartialEnumConverter<B, A>>::convertible_values(), [B::B1, B::B2]);
+        assert_eq!(
+            <DirectConverter as PartialEnumConverter<B, A>>::convertible_values(),
+            [B::B1, B::B2]
+        );
     }
 
     #[test]
