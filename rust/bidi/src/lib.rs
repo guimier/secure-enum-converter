@@ -165,4 +165,15 @@ mod tests {
         assert_eq!(ProjectedConverter::convert_opt(&C::C2), Some(A::A2));
         assert_eq!(ProjectedConverter::convert_opt(&C::C3), Some(A::A1));
     }
+
+    #[test]
+    fn projected_conversions() {
+        // First direction
+        assert_eq!(ProjectedConverter::convert(&A::A1), C::C1);
+        assert_eq!(ProjectedConverter::convert(&A::A2), C::C2);
+        // Second direction
+        assert_eq!(ProjectedConverter::convert(&C::C1), A::A1);
+        assert_eq!(ProjectedConverter::convert(&C::C2), A::A2);
+        assert_eq!(ProjectedConverter::convert(&C::C3), A::A1);
+    }
 }
