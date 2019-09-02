@@ -1,10 +1,10 @@
 error[E0004]: non-exhaustive patterns: `&B3` not covered
-  --> src/main.rs:7:1
+  --> src/main.rs:8:1
    |
-7  | / bidi!(SUT<A, B> {
-8  | |     A1 == B1,
-9  | |     A2 == B2,
-10 | | });
+8  | / bidi!(SUT<A, B> {
+9  | |     A1 = B1,
+10 | |     A2 = B2,
+11 | | });
    | |   ^
    | |   |
    | |___pattern `&B3` not covered
