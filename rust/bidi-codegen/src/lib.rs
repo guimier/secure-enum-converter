@@ -404,7 +404,7 @@ fn bidi_impl(item: proc_macro::TokenStream) -> Result<TokenStream> {
     let mirror = mirror(&definition);
 
     let name = &definition.name;
-    let out_definition = quote!( struct #name {} );
+    let out_definition = quote!( enum #name {} );
 
     let out_struct_impl = generate_struct_impl(&definition, &mirror.rules);
     let out_partial_impl1 = generate_partial_impl(&definition, INTERNAL_CONVERTIBLES_CONSTANT);
