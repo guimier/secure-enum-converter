@@ -49,22 +49,17 @@ mod rules_parser {
     type Data = model::Rules;
 
     #[derive(Debug, Clone, Copy)]
-    enum Op1 {
-        Eq,
-        Lt,
-    }
-    #[derive(Debug, Clone, Copy)]
-    enum Op2 {
+    enum Op {
         Eq,
         Gt,
+        Lt,
     }
 
     #[derive(Debug)]
     enum State {
         StartOfRule(Data),
         Internal(Data, TokenTree),
-        FirstOperatorChar(Data, TokenTree, Op1),
-        SecondOperatorChar(Data, TokenTree, Op1, Op2),
+        Operator(Data, TokenTree, Op),
         EndOfRule(Data),
     }
 
@@ -83,42 +78,27 @@ mod rules_parser {
         Ok(match (state, token.clone()) {
             (StartOfRule(data), Ident(..)) => Internal(data, token),
 
-            (Internal(ref data, ref internal), Punct(ref p))
-                if p.spacing() == Spacing::Joint && p.as_char() == '=' =>
-            {
-                FirstOperatorChar(data.clone(), internal.clone(), Op1::Eq)
-            }
+            (Internal(ref data, ref internal), Punct(ref p)) if p.as_char() == '=' =>
+                Operator(data.clone(), internal.clone(), Op::Eq),
 
-            (Internal(ref data, ref internal), Punct(ref p))
-                if p.spacing() == Spacing::Joint && p.as_char() == '<' =>
-            {
-                FirstOperatorChar(data.clone(), internal.clone(), Op1::Lt)
-            }
+            (Internal(ref data, ref internal), Punct(ref p)) if p.as_char() == '<' =>
+                Operator(data.clone(), internal.clone(), Op::Lt),
 
-            (FirstOperatorChar(ref data, ref internal, op1), Punct(ref p))
-                if p.as_char() == '=' =>
-            {
-                SecondOperatorChar(data.clone(), internal.clone(), op1, Op2::Eq)
-            }
+            (Internal(ref data, ref internal), Punct(ref p)) if p.as_char() == '>' =>
+                Operator(data.clone(), internal.clone(), Op::Gt),
 
-            (FirstOperatorChar(ref data, ref internal, op1), Punct(ref p))
-                if p.as_char() == '>' =>
-            {
-                SecondOperatorChar(data.clone(), internal.clone(), op1, Op2::Gt)
-            }
-
-            (SecondOperatorChar(ref data, ref internal, op1, op2), Ident(..)) => {
+            (Operator(ref data, ref internal, op), Ident(..)) => {
                 let internal = internal.clone();
                 let external = token;
                 let mut data = data.clone();
 
-                data.push(match (op1, op2) {
-                    (Op1::Eq, Op2::Eq) => {
+                data.push(match op {
+                    Op::Eq => {
                         assert!(!is_trap(&internal));
                         assert!(!is_trap(&external));
                         model::Rule::Equivalence(internal, external)
                     }
-                    (Op1::Eq, Op2::Gt) => {
+                    Op::Gt => {
                         assert!(!is_trap(&internal));
                         if is_trap(&external) {
                             model::Rule::OrphanInternal(internal)
@@ -126,7 +106,7 @@ mod rules_parser {
                             model::Rule::ProjectionToExternal(internal, external)
                         }
                     }
-                    (Op1::Lt, Op2::Eq) => {
+                    Op::Lt => {
                         assert!(!is_trap(&external));
                         if is_trap(&internal) {
                             model::Rule::OrphanExternal(external)
@@ -134,7 +114,6 @@ mod rules_parser {
                             model::Rule::ProjectionToInternal(internal, external)
                         }
                     }
-                    (Op1::Lt, Op2::Gt) => return Err(Error::new("<> is not an acceptable relation")),
                 });
 
                 EndOfRule(data)

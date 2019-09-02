@@ -27,8 +27,8 @@
 //! }
 //!
 //! bidi!(Converter<first::L3Protocol, second::L3Protocol> {
-//!     IpV4 == Ip4,
-//!     IpV6 == Ip6,
+//!     IpV4 = Ip4,
+//!     IpV6 = Ip6,
 //! });
 //!
 //! assert_eq!(Converter::convert(&first::L3Protocol::IpV4), second::L3Protocol::Ip4);
@@ -49,17 +49,17 @@
 //! bidi!(Converter<First, Second> {
 //!     // `Matching1` is converted to `Matching2` *and* `Matching2` is
 //!     // converted to `Matching1`. This is the most common case.
-//!     Matching1  == Matching2,
+//!     Matching1  = Matching2,
 //!     // `Projected2` is converted to `Matching1`, but `Matching1` conversion
 //!     // is defined by another rule.
-//!     Matching1  <= Projected2,
+//!     Matching1  < Projected2,
 //!     // `Projected1` is converted to `Matching2`, but `Matching2` conversion
 //!     // is defined by another rule.
-//!     Projected1 => Matching2,
+//!     Projected1 > Matching2,
 //!     // `Orphan1` is not convertible.
-//!     Orphan1    => _,
+//!     Orphan1    > _,
 //!     // `Orphan2` is not convertible.
-//!     _          <= Orphan2
+//!     _          < Orphan2
 //! });
 //! ```
 
@@ -115,25 +115,25 @@ mod tests {
     }
 
     bidi!(* DirectConverter<A, B> {
-        A1 == B1,
-        A2 == B2,
+        A1 = B1,
+        A2 = B2,
     });
 
     bidi!(* ReversedConverter<A, B> {
-        A1 == B2,
-        A2 == B1,
+        A1 = B2,
+        A2 = B1,
     });
 
     bidi!(* SemiCompleteConverter<A,C> {
-        A1 == C1,
-        A2 == C2,
-        _  <= C3
+        A1 = C1,
+        A2 = C2,
+        _  < C3
     });
 
     bidi!(* ProjectedConverter<A,C> {
-        A1 == C1,
-        A2 == C2,
-        A1 <= C3
+        A1 = C1,
+        A2 = C2,
+        A1 < C3
     });
 
     #[test]
