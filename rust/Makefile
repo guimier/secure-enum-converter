@@ -25,7 +25,7 @@ virt/cf-tests: $(TESTS_CF_TARGETS)
 define TESTS_CF_GENERATOR
 virt/run-cf-$(1): $$(find $$(TESTS_CF_DIR) -name \*.rs)
 	@cd "$$(TESTS_CF_DIR)/$(1)"; rm -rf target; $(TOOLS)/run_cf.sh "$(1)" "../$(1).out" cargo build
-	@sed -i "/^   \(Compiling\|Blocking\)/d" "$$(TESTS_CF_DIR)/$(1).out"
+	@sed -i '/^\(   Compiling\|    Blocking\)/d' "$$(TESTS_CF_DIR)/$(1).out"
 endef
 $(foreach i,$(TESTS_CF_NAMES),$(eval $(call TESTS_CF_GENERATOR,$(i))))
 
