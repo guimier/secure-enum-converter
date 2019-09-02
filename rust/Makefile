@@ -18,7 +18,7 @@ virt/all-tests: virt/ok-tests virt/cf-tests
 	$(TOOLS)/check_cf_out.sh
 
 virt/ok-tests: $(find bidi* -name \*.rs -or -name \*.toml)
-	cargo test
+	cargo test $(CARGO_TEST_ARGS)
 
 virt/cf-tests: $(TESTS_CF_TARGETS)
 

@@ -9,4 +9,4 @@ pipelines:
           - apt install -y python-pip cargo
           - pip install cpplint
           # Run tests
-          - TERM=xterm make
+          - TERM=xterm CARGO_TEST_ARGS='-- --skip src/lib.rs' make
