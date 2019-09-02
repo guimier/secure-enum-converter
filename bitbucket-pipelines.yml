@@ -6,7 +6,7 @@ pipelines:
         script:
           # Dependencies
           - apt update
-          - apt install -y python-pip
+          - apt install -y python-pip cargo
           - pip install cpplint
           # Run tests
           - make
