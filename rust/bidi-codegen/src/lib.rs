@@ -35,6 +35,7 @@ mod model {
 
     #[derive(Debug)]
     pub struct Definition {
+        pub for_tests: bool,
         pub name: TokenTree,
         pub internal_type: TokenStream,
         pub external_type: TokenStream,
@@ -213,11 +214,11 @@ mod type_parser {
 
     #[derive(Debug)]
     enum State {
-        Init,
-        Named(TokenTree),
-        ReadingInternal(TokenTree, TypeNameState),
-        ReadingExternal(TokenTree, TokenStream, TypeNameState),
-        Specified(TokenTree, TokenStream, TokenStream),
+        Init(bool),
+        Named(bool, TokenTree),
+        ReadingInternal(bool, TokenTree, TypeNameState),
+        ReadingExternal(bool, TokenTree, TokenStream, TypeNameState),
+        Specified(bool, TokenTree, TokenStream, TokenStream),
         Done(model::Definition),
     }
 
@@ -226,25 +227,28 @@ mod type_parser {
         use TokenTree::*;
 
         Ok(match (state, token.clone()) {
-            (Init, Ident(..)) => Named(token),
+            (Init(for_tests), Ident(..)) => Named(for_tests, token),
 
-            (Named(ref name), Punct(ref p)) if p.as_char() == '<' =>
-                ReadingInternal(name.clone(), TypeNameState::Init),
+            (Init(false), Punct(ref p)) if p.as_char() == '*' => Init(true),
 
-            (ReadingInternal(ref name, ref state), Punct(ref p)) if p.as_char() == ',' =>
-                ReadingExternal(name.clone(), state.extract(&token)?, TypeNameState::Init),
+            (Named(for_tests, ref name), Punct(ref p)) if p.as_char() == '<' =>
+                ReadingInternal(for_tests, name.clone(), TypeNameState::Init),
 
-            (ReadingInternal(name, state), token) =>
-                ReadingInternal(name, state.next_step(&token)?),
+            (ReadingInternal(for_tests, ref name, ref state), Punct(ref p)) if p.as_char() == ',' =>
+                ReadingExternal(for_tests, name.clone(), state.extract(&token)?, TypeNameState::Init),
 
-            (ReadingExternal(ref name, ref internal, ref state), Punct(ref p)) if p.as_char() == '>' =>
-                Specified(name.clone(), internal.clone(), state.extract(&token)?),
+            (ReadingInternal(for_tests, name, state), token) =>
+                ReadingInternal(for_tests, name, state.next_step(&token)?),
 
-            (ReadingExternal(name, internal, state), token) =>
-                ReadingExternal(name, internal, state.next_step(&token)?),
+            (ReadingExternal(for_tests, ref name, ref internal, ref state), Punct(ref p)) if p.as_char() == '>' =>
+                Specified(for_tests, name.clone(), internal.clone(), state.extract(&token)?),
 
-            (Specified(ref name, ref internal, ref external), Group(ref g)) if g.delimiter() == Delimiter::Brace => {
+            (ReadingExternal(for_tests, name, internal, state), token) =>
+                ReadingExternal(for_tests, name, internal, state.next_step(&token)?),
+
+            (Specified(for_tests, ref name, ref internal, ref external), Group(ref g)) if g.delimiter() == Delimiter::Brace => {
                 Done(model::Definition {
+                    for_tests: for_tests,
                     name: name.clone(),
                     internal_type: internal.clone(),
                     external_type: external.clone(),
@@ -257,7 +261,7 @@ mod type_parser {
     }
 
     pub(crate) fn parse(stream: TokenStream) -> Result<model::Definition> {
-        let mut state = State::Init;
+        let mut state = State::Init(false);
 
         for token in stream.into_iter() {
             state = next_step(state, token)?;
@@ -275,6 +279,7 @@ fn mirror(direct: &model::Definition) -> model::Definition {
     use model::Rule::*;
 
     model::Definition {
+        for_tests: direct.for_tests,
         name: direct.name.clone(),
         external_type: direct.internal_type.clone(),
         internal_type: direct.external_type.clone(),
@@ -324,6 +329,7 @@ fn generate_struct_impl(def: &model::Definition, mirror_rules: &model::Rules) ->
         internal_type,
         external_type,
         rules: direct_rules,
+        ..
     } = def;
     let int_constant_name = format_ident!("{}", INTERNAL_CONVERTIBLES_CONSTANT);
     let ext_constant_name = format_ident!("{}", EXTERNAL_CONVERTIBLES_CONSTANT);
@@ -338,12 +344,21 @@ fn generate_struct_impl(def: &model::Definition, mirror_rules: &model::Rules) ->
     }
 }
 
+fn prefix(def: &model::Definition) -> TokenStream {
+    if def.for_tests {
+        quote!(crate)
+    } else {
+        quote!(::bidi)
+    }
+}
+
 fn generate_partial_impl(def: &model::Definition, const_name: &str) -> TokenStream {
     let model::Definition {
         name,
         internal_type,
         external_type,
         rules,
+        ..
     } = def;
     let constant_name = format_ident!("{}", const_name);
 
@@ -359,9 +374,11 @@ fn generate_partial_impl(def: &model::Definition, const_name: &str) -> TokenStre
         model::Rule::OrphanExternal(..) => None,
     });
 
+    let prefix = prefix(def);
+
     // TODO Refer to ::bidi:: instead of crate::
     quote! {
-        impl crate::PartialEnumConverter<#internal_type, #external_type> for #name {
+        impl #prefix::PartialEnumConverter<#internal_type, #external_type> for #name {
             fn convert_opt(internal_value: &#internal_type) -> Option<#external_type> {
                 match internal_value {
                     #(#rules,)*
@@ -389,8 +406,9 @@ fn generate_complete_impl(def: &model::Definition) -> TokenStream {
             internal_type,
             ..
         } = def;
+        let prefix = prefix(def);
         quote!(
-            unsafe impl crate::EnumConverter<#internal_type, #external_type> for #name {}
+            unsafe impl #prefix::EnumConverter<#internal_type, #external_type> for #name {}
         )
     } else {
         TokenStream::new()

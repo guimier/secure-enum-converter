@@ -34,23 +34,23 @@ mod tests {
         C3,
     }
 
-    bidi!(DirectConverter<A, B> {
+    bidi!(* DirectConverter<A, B> {
         A1 == B1,
         A2 == B2,
     });
 
-    bidi!(ReversedConverter<A, B> {
+    bidi!(* ReversedConverter<A, B> {
         A1 == B2,
         A2 == B1,
     });
 
-    bidi!(SemiCompleteConverter<A,C> {
+    bidi!(* SemiCompleteConverter<A,C> {
         A1 == C1,
         A2 == C2,
         _  <= C3
     });
 
-    bidi!(ProjectedConverter<A,C> {
+    bidi!(* ProjectedConverter<A,C> {
         A1 == C1,
         A2 == C2,
         A1 <= C3
